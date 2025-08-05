@@ -4,6 +4,7 @@ import {
   getEmployeesByCompanyId
 } from '../api/Employees.api.js'; 
 import { getCompanies } from '../api/Companies.api.js';
+import Navbar from '../components/Home/Navbar.jsx';
 
 
 const Employee = () => {
@@ -61,10 +62,10 @@ const Employee = () => {
     }
   };
 
-  console.log(employees);
-
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6">
+    <div className='h-screen w-full'>
+      <Navbar />
+      <div className="max-w-6xl mx-auto px-4 py-6">
       <h2 className="text-2xl font-bold mb-4">Employees</h2>
 
       {/* Filter by Company */}
@@ -126,6 +127,7 @@ const Employee = () => {
           </tbody>
 
         </table>
+      </div>
       </div>
     </div>
   );

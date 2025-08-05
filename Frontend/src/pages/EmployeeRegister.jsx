@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createEmployee } from '../api/Employees.api';
 import { getCompanies } from '../api/Companies.api';
-
+import Navbar from '../components/Home/Navbar';
 const EmployeeRegister = () => {
   const navigate = useNavigate();
   const [companies, setCompanies] = useState([]);
@@ -77,7 +77,9 @@ const EmployeeRegister = () => {
   
   
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white rounded shadow">
+    <div className='h-screen w-full'>
+      <Navbar />
+      <div className="max-w-xl mx-auto p-6 bg-white rounded shadow">
       <h2 className="text-2xl font-bold mb-4">Register Employee</h2>
 
       {error && <p className="text-red-600 mb-3">{error}</p>}
@@ -132,6 +134,7 @@ const EmployeeRegister = () => {
           {isLoading ? 'Registering...' : 'Register Employee'}
         </button>
       </form>
+      </div>
     </div>
   );
 };
