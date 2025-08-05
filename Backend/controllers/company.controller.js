@@ -8,7 +8,7 @@ const createCompany = asyncHandler(async (req, res) => {
   try {
     const company = await Company.create(req.body);
     return res.status(201).json(
-      new APIResponse(201, company, "Company created successfully")
+      new APIResponse(201, company, "Company created succesfully")
     );
   } catch (error) {
     return res.status(500).json(
