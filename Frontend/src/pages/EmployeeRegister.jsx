@@ -20,13 +20,14 @@ const EmployeeRegister = () => {
     const fetchCompanies = async () => {
       try {
         const response = await getCompanies(); // response = { data: [...companies], ... }
-        const companyList = response.data;
+        const companyList = Array.isArray(response.data) ? response.data : [];
+
   
         setCompanies(companyList); // ✅ Store the companies in state
   
         setEmployeeData((prev) => ({
           ...prev,
-          companyId: companyList[0]?._id || '', // ✅ Corrected from `id` to `_id`
+          companyId: '', 
         }));
       } catch (err) {
         console.error('Failed to fetch companies:', err);
