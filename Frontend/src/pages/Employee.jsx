@@ -25,13 +25,15 @@ const Employee = () => {
   const fetchCompanies = async () => {
     try {
       const response = await getCompanies();
-      const companies = response.data;
+      const companies = Array.isArray(response.data) ? response.data : [];
       console.log('Fetched companies:', companies);
       setCompanies(companies);
     } catch (err) {
       setError('Failed to load companies.');
+      setCompanies([]); // fallback to prevent undefined
     }
   };
+  
 
   const fetchEmployeesByCompany = async (companyId) => {
     try {
@@ -74,7 +76,7 @@ const Employee = () => {
           onChange={handleFilterChange}
         >
           <option value="">All Companies</option>
-          {companies.map((company) => (
+          {(companies || []).map((company) => (
             <option key={company._id} value={company._id}>
               {company.name} ({company.type})
             </option>
