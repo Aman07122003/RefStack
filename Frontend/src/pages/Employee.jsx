@@ -97,7 +97,7 @@ const Employee = () => {
             </tr>
           </thead>
           <tbody>
-            {employees.length > 0 ? (
+            {Array.isArray(employees) && employees.length > 0 ? (
               employees.map((employee) => (
                 <tr key={employee._id} className="border-b">
                   <td className="px-4 py-2">{employee.fullName}</td>
@@ -124,6 +124,7 @@ const Employee = () => {
               </tr>
             )}
           </tbody>
+
         </table>
       </div>
     </div>
