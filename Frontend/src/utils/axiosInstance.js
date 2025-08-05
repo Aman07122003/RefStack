@@ -1,8 +1,9 @@
+// src/api/axios.js
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: 'https://refstack.onrender.com', // Backend API base
-  withCredentials: false, // set to true if you use cookies/auth
+  baseURL: import.meta.env.VITE_API_BASE_URL, // ✅ Must start with VITE_
+  withCredentials: false,
 });
 
 export default axiosInstance;
