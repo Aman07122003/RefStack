@@ -20,7 +20,7 @@ const Navbar = () => {
           <h1 className='text-2xl font-extrabold text-gray-300'>RefStack</h1>
         </div>
 
-        <div className='w-[40%] flex justify-between items-center gap-3 mr-2'>
+        <div className='w-[50%] flex justify-between items-center gap-3 mr-2'>
           <button
             onClick={() => navigate('/register-company')}
             className="text-black hover:text-black font-medium rounded-md px-4 py-2 bg-gray-100 hover:bg-gray-200 transition duration-300"
