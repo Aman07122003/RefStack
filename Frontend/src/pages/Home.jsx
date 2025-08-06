@@ -13,7 +13,7 @@ const HomePage = () => {
       <div className="bg-gray-100 text-white">
         <div className="max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
           <div className="text-center">
-            <img className="mx-auto h-32 w-auto mb-6" src={WebsiteLogo} alt="RefStack Logo" />
+            <img className="mx-auto h-32 rounded-2xl w-auto mb-6" src={WebsiteLogo} alt="RefStack Logo" />
             <h1 className="text-4xl text-black font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
               Streamline Your Reference Management
             </h1>
