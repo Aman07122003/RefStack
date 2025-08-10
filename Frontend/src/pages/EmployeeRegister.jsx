@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createEmployee } from '../api/Employees.api';
 import { getCompanies } from '../api/Companies.api';
-import Navbar from '../components/Home/Navbar';
+import FormNav from '../components/FormNav';
+import Footer from '../components/Home/Footer'; // Assuming you have a Footer component
+
+
 const EmployeeRegister = () => {
   const navigate = useNavigate();
   const [companies, setCompanies] = useState([]);
@@ -77,64 +80,69 @@ const EmployeeRegister = () => {
   
   
   return (
-    <div className='h-screen w-full'>
-      <Navbar />
-      <div className="max-w-xl mx-auto p-6 bg-white rounded shadow">
-      <h2 className="text-2xl font-bold mb-4">Register Employee</h2>
+    <div className="h-[120vh] w-full bg-gradient-to-b from-white via-green-50 to-lime-50 flex flex-col justify-between p-5">
+      <div>
+        <FormNav />
+      </div>
+      <main className='p-4'>
+      <div className="max-w-xl mx-auto">
+        <h2 className="font-bold mb-4 flex justify-center text-4xl font-mono">Register Employee</h2>
 
-      {error && <p className="text-red-600 mb-3">{error}</p>}
+        {error && <p className="text-red-600 mb-3">{error}</p>}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {[
-          { name: 'fullName', label: 'Full Name' },
-          { name: 'email', label: 'Email' },
-          { name: 'PhoneNumber', label: 'Phone Number' },
-          { name: 'designation', label: 'Designation' },
-          { name: 'linkedIn', label: 'LinkedIn' },
-          { name: 'twitter', label: 'Twitter' },
-          { name: 'github', label: 'GitHub' },
-        ].map(({ name, label }) => (
-          <div key={name}>
-            <label className="block text-sm font-medium">{label}</label>
-            <input
-              type="text"
-              name={name}
-              value={employeeData[name]}
+        <form onSubmit={handleSubmit} className="space-y-4 mt-15">
+          {[
+            { name: 'fullName', label: 'Full Name' },
+            { name: 'email', label: 'Email' },
+            { name: 'PhoneNumber', label: 'Phone Number' },
+            { name: 'designation', label: 'Designation' },
+            { name: 'linkedIn', label: 'LinkedIn' },
+            { name: 'twitter', label: 'Twitter' },
+            { name: 'github', label: 'GitHub' },
+          ].map(({ name, label }) => (
+            <div key={name}>
+              <label className="block text-sm font-medium">{label}</label>
+              <input
+                type="text"
+                name={name}
+                value={employeeData[name]}
+                onChange={handleInputChange}
+                className="w-full p-2 border rounded"
+                required={['fullName', 'email', 'designation'].includes(name)}
+              />
+            </div>
+          ))}
+
+          {/* Company Select Dropdown */}
+          <div>
+            <label className="block text-sm font-medium">Company</label>
+            <select
+              name="companyId"
+              value={employeeData.companyId}
               onChange={handleInputChange}
               className="w-full p-2 border rounded"
-              required={['fullName', 'email', 'designation'].includes(name)}
-            />
+              required
+            >
+              <option value="">Select Company</option>
+              {companies.map((company) => (
+                <option key={company._id} value={company._id}>
+                  {company.name}
+                </option>
+              ))}
+            </select>
           </div>
-        ))}
 
-        {/* Company Select Dropdown */}
-        <div>
-          <label className="block text-sm font-medium">Company</label>
-          <select
-            name="companyId"
-            value={employeeData.companyId}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded"
-            required
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-blue-600 text-white py-2 mt-4 rounded hover:bg-blue-700"
           >
-            <option value="">Select Company</option>
-            {companies.map((company) => (
-              <option key={company._id} value={company._id}>
-                {company.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-        >
-          {isLoading ? 'Registering...' : 'Register Employee'}
-        </button>
-      </form>
+            {isLoading ? 'Registering...' : 'Register Employee'}
+          </button>
+        </form>
       </div>
+      </main>
+      <Footer />
     </div>
   );
 };
