@@ -1,0 +1,24 @@
+import express from 'express';
+import cors from 'cors';
+
+import employeeRoutes from './routes/employee.routes.js';
+import companyRoutes from './routes/company.routes.js';
+
+const app = express();
+
+// ✅ Enable CORS BEFORE any routes
+app.use(cors());
+
+// Body parser
+app.use(express.json());
+
+// Routes
+app.use('/api/employees', employeeRoutes);
+app.use('/api/companies', companyRoutes);
+
+// Root route
+app.get('/', (req, res) => {
+  res.send('Hello from Express!');
+});
+
+export { app };
