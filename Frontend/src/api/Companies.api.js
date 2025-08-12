@@ -11,7 +11,12 @@ export const getCompanies = async () => {
 
 export const createCompany = async (data) => {
     try {
-        const response = await axiosInstance.post('/api/companies', data);
+        const response = await axiosInstance.post('/api/companies', data , {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        
         return response.data;
     } catch (error) {
         throw error.response?.data || error;

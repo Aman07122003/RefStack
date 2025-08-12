@@ -1,92 +1,143 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import {
+  getEmployees,
+  getEmployeesByCompanyId
+} from '../api/Employees.api.js'; 
+import { getCompanies } from '../api/Companies.api.js';
+import FormNav from '../components/FormNav.jsx';
+import Footer from '../components/Home/Footer.jsx';
+import { useNavigate } from 'react-router-dom';
+import { FiLinkedin, FiInstagram, FiMail, FiTwitter, FiGithub, FiPhoneCall } from 'react-icons/fi';
 
-const Companies = () => {
-  // Sample placeholder data
-  const companies = [
-    {
-      _id: "64b12c34abc1234567890def",
-      name: "RefStack Technologies",
-      industry: "Software",
-      location: "Bangalore, India",
-      type: "Startup",
-    },
-    {
-      _id: "64b12c34abc1234567890fed",
-      name: "TechNova Solutions",
-      industry: "IT Services",
-      location: "Gurgaon, India",
-      type: "Service",
-    },
-  ];
+const Employee = () => {
+  const navigate = useNavigate();
+  const [employees, setEmployees] = useState([]);
+  const [companies, setCompanies] = useState([]);
+  const [selectedCompany, setSelectedCompany] = useState('');
+  const [error, setError] = useState(null);
+
+  const fetchAllEmployees = async () => {
+    try {
+      const response = await getEmployees();
+      setEmployees(response.data);
+    } catch (err) {
+      setError('Failed to load employees.');
+    }
+  };
+
+  const fetchCompanies = async () => {
+    try {
+      const response = await getCompanies();
+      setCompanies(Array.isArray(response.data) ? response.data : []);
+    } catch (err) {
+      setError('Failed to load companies.');
+      setCompanies([]);
+    }
+  };
+
+  const fetchEmployeesByCompany = async (companyId) => {
+    try {
+      const response = await getEmployeesByCompanyId(companyId);
+      setEmployees(response.data);
+    } catch (err) {
+      setError('Failed to filter employees.');
+    }
+  };
+
+  useEffect(() => {
+    fetchCompanies();
+    fetchAllEmployees();
+  }, []);
+
+  const handleFilterChange = (e) => {
+    const companyId = e.target.value;
+    setSelectedCompany(companyId);
+    if (companyId === '') {
+      fetchAllEmployees();
+    } else {
+      fetchEmployeesByCompany(companyId);
+    }
+  };
 
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Companies</h1>
-        <Link
-          to="/companies/new"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-        >
-          + Add Company
-        </Link>
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 via-white to-gray-100">
+      {/* Fixed Navbar */}
+      <div className=" top-0 left-0 w-full">
+        <FormNav />
       </div>
 
-      <div className="overflow-x-auto shadow rounded-lg">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Industry
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Location
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Type
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {companies.map((company) => (
-              <tr key={company._id}>
-                <td className="px-6 py-4 whitespace-nowrap font-medium">{company.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{company.industry}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{company.location}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{company.type}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
-                  <Link
-                    to={`/companies/${company._id}`}
-                    className="text-blue-600 hover:underline"
-                  >
-                    View
-                  </Link>
-                  <Link
-                    to={`/companies/${company._id}/edit`}
-                    className="text-yellow-600 hover:underline"
-                  >
-                    Edit
-                  </Link>
-                  <button
-                    onClick={() => console.log(`Delete ${company._id}`)}
-                    className="text-red-600 hover:underline"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Scrollable Content */}
+      <main className="flex-1 max-w-6xl mx-auto mt-[10px] mb-[80px]">
+
+        {/* Company Cards */}
+        <div className="mt-10">
+          <h2 className="text-3xl font-bold mb-6">Companies</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {companies.length > 0 ? (
+              companies.map((company) => (
+                <div
+                  key={company._id}
+                  className="w-60 bg-white shadow-md rounded-lg p-4 border border-gray-200 hover:border-gray-400 hover:shadow-lg transition duration-200 flex flex-col items-center text-center"
+                >
+                  <img
+                    src={company.logo || 'https://via.placeholder.com/100'}
+                    className="h-24 w-24 object-cover rounded-full border mb-3"
+                    alt={company.name}
+                  />
+                  <h3 className="text-xl font-semibold text-green-600">{company.name}</h3>
+                  <p className="text-sm text-gray-500">{company.industry}</p>
+                  <p className="text-sm text-gray-400 mb-2">{company.location}</p>
+
+                  {company.website && (
+                    <a
+                      href={company.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 text-sm hover:underline"
+                    >
+                      Visit Website
+                    </a>
+                  )}
+
+                  <div className="mt-3 flex space-x-3">
+                    {company.linkedIn && (
+                      <a
+                        href={company.linkedIn}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        <FiLinkedin className="w-5 h-5" />
+                      </a>
+                    )}
+                    {company.careersPage && (
+                      <a
+                        href={company.careersPage}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-green-600 hover:text-green-800"
+                      >
+                        <FiMail className="w-5 h-5" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full text-center text-gray-500">
+                No companies found.
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+
+      {/* Fixed Footer */}
+      <div className="bottom-0 left-0 w-full">
+        <Footer />
       </div>
     </div>
   );
 };
 
-export default Companies;
+export default Employee;

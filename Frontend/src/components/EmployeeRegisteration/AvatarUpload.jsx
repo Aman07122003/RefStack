@@ -17,7 +17,7 @@ const AvatarUpload = ({ type, previewImage, inputRef, onChange, error }) => {
   };
 
   return (
-    <div className="mb-6">
+    <div className="mb-6 flex flex-col justify-center items-center">
       <label className='font-bold'>Profile Image</label>
       <div
         role="button"
