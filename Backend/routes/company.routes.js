@@ -6,11 +6,16 @@ import {
   updateCompany,
   deleteCompany,
 } from "../controllers/company.controller.js";
+import { upload } from "../middleware/multer.middleware.js";
 
 const router = express.Router();
 
 // Create a new company
-router.post("/", createCompany);
+router.route("/").post(
+  upload.fields([
+    { name: "logo", maxCount: 1 },
+  ]),
+  createCompany);
 
 // Get all companies
 router.get("/", getAllCompanies);

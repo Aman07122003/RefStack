@@ -2,11 +2,44 @@ import Employee from "../models/employee.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { APIError } from "../utils/APIError.js";
 import { APIResponse } from "../utils/APIResponse.js";
+import { uploadImage } from "../utils/cloudinary.js";
 
 
 const createEmployee = asyncHandler(async (req, res) => {
     try {
-        const employee = await Employee.create(req.body);
+        const { fullName, email, designation, linkedIn, twitter, github, PhoneNumber, successlevel, companyId } = req.body;
+        let avatarUrl = "";
+        if (req.file || (req.files && req.files.avatar)) {
+            avatarUrl = req.file?.path || req.files.avatar[0]?.path;
+        }
+        if (!avatarUrl) {
+            return res
+                .status(400)
+                .json(new APIError(400, "Avatar image is required"));
+        }
+        const avatarRes = await uploadImage(avatarUrl);
+        if (!avatarRes?.secure_url) {
+            return res
+                .status(500)
+                .json(new APIError(500, "Failed to upload avatar image"));
+        }
+        const employee = await Employee.create({
+            fullName,
+            email,
+            image: avatarRes.url,
+            designation,
+            linkedIn,
+            twitter,
+            github,
+            PhoneNumber,
+            successlevel,
+            companyId
+        });
+        if (!employee) {
+            return res
+                .status(400)
+                .json(new APIError(400, "Failed to create employee"));
+        }
         return res
             .status(201)
             .json(

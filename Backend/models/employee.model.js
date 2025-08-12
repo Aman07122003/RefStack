@@ -12,6 +12,10 @@ const employee = new mongoose.Schema(
       trim: true,
       lowercase: true,
     },
+    image: {
+      type: String,
+      required: true,
+    },
     designation: {
       type: String,
       required: true,

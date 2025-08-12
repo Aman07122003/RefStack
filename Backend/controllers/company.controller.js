@@ -2,13 +2,47 @@ import Company from "../models/company.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { APIResponse } from "../utils/APIResponse.js";
 import { APIError } from "../utils/APIError.js";
+import { uploadImage } from "../utils/cloudinary.js";
 
 // Create new company
 const createCompany = asyncHandler(async (req, res) => {
   try {
-    const company = await Company.create(req.body);
+    const { name, website, industry, location, description, LinkedIn, careersPage, type, averageSalaryBand } = req.body;
+
+    let logoUrl = "";
+    if (req.file || (req.files && req.files.logo)) {
+      logoUrl = req.file?.path || req.files.logo[0]?.path;
+    }
+
+    if (!logoUrl) {
+      return res.status(400).json(new APIError(400, "Logo image is required"));
+    }
+
+    const logoRes = await uploadImage(logoUrl);
+    if (!logoRes?.secure_url) {
+      return res.status(500).json(new APIError(500, "Failed to upload logo image"));
+    }
+
+
+    const newCompany = await Company.create({
+      name,
+      website,
+      industry,
+      logo: logoRes.url,
+      location,
+      description,
+      LinkedIn,
+      careersPage,
+      type,
+      averageSalaryBand
+    });
+
+    if (!newCompany) {
+      return res.status(400).json(new APIError(400, "Failed to create company"));
+    }
+
     return res.status(201).json(
-      new APIResponse(201, company, "Company created succesfully")
+      new APIResponse(201, newCompany, "Company created successfully")
     );
   } catch (error) {
     return res.status(500).json(
@@ -16,6 +50,7 @@ const createCompany = asyncHandler(async (req, res) => {
     );
   }
 });
+
 
 // Get all companies
 const getAllCompanies = asyncHandler(async (req, res) => {
