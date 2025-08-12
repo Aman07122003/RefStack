@@ -20,7 +20,7 @@ const FormNav = () => {
                 Register Company
             </button>
             <button
-                onClick={() => navigate('/register-employee')}
+                onClick={() => navigate('/employees')}
                 className={navButton}
             >
                 Register Employee
