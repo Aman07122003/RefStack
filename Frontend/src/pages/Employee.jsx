@@ -4,10 +4,13 @@ import {
   getEmployeesByCompanyId
 } from '../api/Employees.api.js'; 
 import { getCompanies } from '../api/Companies.api.js';
-import Navbar from '../components/Home/Navbar.jsx';
-
+import FormNav from '../components/FormNav.jsx';
+import Footer from '../components/Home/Footer.jsx';
+import { useNavigate } from 'react-router-dom';
+import { FiLinkedin, FiInstagram, FiMail, FiTwitter, FiGithub, FiPhoneCall } from 'react-icons/fi';
 
 const Employee = () => {
+  const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
@@ -16,8 +19,7 @@ const Employee = () => {
   const fetchAllEmployees = async () => {
     try {
       const response = await getEmployees();
-      const data = response.data;
-      setEmployees(data);
+      setEmployees(response.data);
     } catch (err) {
       setError('Failed to load employees.');
     }
@@ -26,22 +28,17 @@ const Employee = () => {
   const fetchCompanies = async () => {
     try {
       const response = await getCompanies();
-      const companies = Array.isArray(response.data) ? response.data : [];
-      console.log('Fetched companies:', companies);
-      setCompanies(companies);
+      setCompanies(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       setError('Failed to load companies.');
-      setCompanies([]); // fallback to prevent undefined
+      setCompanies([]);
     }
   };
-  
 
   const fetchEmployeesByCompany = async (companyId) => {
     try {
       const response = await getEmployeesByCompanyId(companyId);
-      const data = response.data;
-      console.log('Filtered employees:', data);
-      setEmployees(data);
+      setEmployees(response.data);
     } catch (err) {
       setError('Failed to filter employees.');
     }
@@ -63,71 +60,113 @@ const Employee = () => {
   };
 
   return (
-    <div className='h-screen w-full'>
-      <Navbar />
-      <div className="max-w-6xl mx-auto px-4 py-6">
-      <h2 className="text-2xl font-bold mb-4">Employees</h2>
-
-      {/* Filter by Company */}
-      <div className="mb-4"> 
-        <label className="block text-sm font-medium text-gray-700 mb-1">Filter by Company:</label>
-        <select 
-          className="w-full p-2 border rounded shadow-sm"
-          value={selectedCompany}
-          onChange={handleFilterChange}
-        >
-          <option value="">All Companies</option>
-          {(companies || []).map((company) => (
-            <option key={company._id} value={company._id}>
-              {company.name} ({company.type})
-            </option>
-          ))}
-        </select>
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 via-white to-gray-100">
+      {/* Fixed Navbar */}
+      <div className=" top-0 left-0 w-full">
+        <FormNav />
       </div>
 
-      {/* Employee Table */}
-      <div className="overflow-x-auto bg-white rounded shadow">
-        <table className="min-w-full table-auto">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="text-left px-4 py-2">Name</th>
-              <th className="text-left px-4 py-2">Email</th>
-              <th className="text-left px-4 py-2">Designation</th>
-              <th className="text-left px-4 py-2">Company</th>
-              <th className="text-left px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Array.isArray(employees) && employees.length > 0 ? (
-              employees.map((employee) => (
-                <tr key={employee._id} className="border-b">
-                  <td className="px-4 py-2">{employee.fullName}</td>
-                  <td className="px-4 py-2">{employee.email}</td>
-                  <td className="px-4 py-2">{employee.designation}</td>
-                  <td className="px-4 py-2">
-                    {employee.companyId ? employee.companyId.name : 'N/A'}
-                  </td>
-                  <td className="px-4 py-2">
+      {/* Scrollable Content */}
+      <main className="flex-1 max-w-6xl mx-auto px-4 py-6 mt-[20px] mb-[80px]">
+        <h2 className="text-3xl font-bold mb-6">Employees</h2>
+
+        {/* Filter by Company */}
+        <div className="mb-6">
+          <label className="block text-sm font-semibold mb-2">
+            Filter by Company:
+          </label>
+          <select
+            className="w-full p-2 border  rounded-lg shadow-sm"
+            value={selectedCompany}
+            onChange={handleFilterChange}
+          >
+            <option value="">All Companies</option>
+            {(companies || []).map((company) => (
+              <option key={company._id} value={company._id}>
+                {company.name} ({company.type})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Employee Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Array.isArray(employees) && employees.length > 0 ? (
+            employees.map((employee) => (
+              <div
+                key={employee._id}
+                className="bg-white shadow-md rounded-lg p-4 border border-gray-200 hover:border-gray-400 hover:shadow-lg transition duration-200 flex flex-col items-center text-center"
+              >
+                <img
+                  src={employee.image}
+                  className="h-28 w-28 rounded-full border-1 border-gray-200 object-cover mb-3"
+                />
+                <h2 className="text-lg font-semibold text-green-500">{employee.fullName}</h2>
+                <p className="text-gray-600">{employee.email}</p>
+                <p className="mt-1 text-sm text-gray-500">{employee.designation}</p>
+                <div className="mt-4 space-x-3 flex">
+                  {employee.linkedIn && (
                     <a
-                      href={`/employees/${employee._id}`}
-                      className="text-blue-600 hover:underline"
+                      href={employee.linkedIn}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800"
                     >
-                      View Profile
+                      <FiLinkedin className="w-6 h-6" />
                     </a>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5" className="text-center px-4 py-2">
-                  No employees found.
-                </td>
-              </tr>
-            )}
-          </tbody>
+                  )}
+                  {employee.github && (
+                    <a
+                      href={employee.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-black-600 hover:text-gray-800"
+                    >
+                      <FiGithub className="w-6 h-6" />
+                    </a>
+                  )}
+                  {employee.PhoneNumber && (
+                    <a
+                      href={employee.PhoneNumber.startsWith('http') ? employee.PhoneNumber : `tel:${employee.PhoneNumber}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-black-600 hover:text-gray-800"
+                    >
+                      <FiPhoneCall className="w-6 h-6" />
+                    </a>
+                  )}
+                  {employee.twitter && (
+                    <a
+                      href={employee.twitter}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-400 hover:text-blue-600"
+                    >
+                      <FiTwitter className="w-6 h-6" />
+                    </a>
+                  )}
+                  {employee.email && (
+                    <a
+                      href={`mailto:${employee.email}`}
+                      className="text-gray-600 hover:text-gray-800"
+                    >
+                      <FiMail className="w-6 h-6" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center text-gray-500">
+              No employees found.
+            </div>
+          )}
+        </div>
+      </main>
 
-        </table>
-      </div>
+      {/* Fixed Footer */}
+      <div className="bottom-0 left-0 w-full">
+        <Footer />
       </div>
     </div>
   );

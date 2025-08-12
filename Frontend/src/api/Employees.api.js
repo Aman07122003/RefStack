@@ -11,12 +11,18 @@ export const getEmployees = async () => {
 
 export const createEmployee = async (data) => {
     try {
-        const response = await axiosInstance.post('/api/employees', data);
-        return response.data;
+      const response = await axiosInstance.post('/api/employees', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+      return response.data;
     } catch (error) {
-        throw error.response?.data || error;
+      throw error.response?.data || error;
     }
-}
+  };
+  
 
 export const getEmployeeById = async (id) => {
     try {

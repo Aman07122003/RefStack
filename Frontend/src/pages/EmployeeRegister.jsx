@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createEmployee } from '../api/Employees.api';
-import { getCompanies } from '../api/Companies.api';
 import FormNav from '../components/FormNav';
-import Footer from '../components/Home/Footer'; // Assuming you have a Footer component
-
+import AvatarUpload from '../components/EmployeeRegisteration/AvatarUpload';
+import Footer from '../components/Home/Footer';
+import {getCompanies } from '../api/Companies.api'; 
+import { createEmployee } from '../api/Employees.api'; 
 
 const EmployeeRegister = () => {
   const navigate = useNavigate();
@@ -19,34 +19,44 @@ const EmployeeRegister = () => {
     twitter: '',
     companyId: '',
   });
+  const [avatar, setAvatar] = useState(null); // store image file
+  const [preview, setPreview] = useState(null); // store preview URL
+  const avatarInputRef = useRef(null);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const response = await getCompanies(); // response = { data: [...companies], ... }
-        const companyList = Array.isArray(response.data) ? response.data : [];
-
-  
-        setCompanies(companyList); // ✅ Store the companies in state
-  
-        setEmployeeData((prev) => ({
-          ...prev,
-          companyId: '', 
-        }));
+        const response = await getCompanies();
+        setCompanies(Array.isArray(response.data) ? response.data : []);
+        console.log('Fetched companies:', response.data);
       } catch (err) {
         console.error('Failed to fetch companies:', err);
       }
     };
-  
     fetchCompanies();
   }, []);
-  
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+
+  // Create preview URL whenever avatar changes
+  useEffect(() => {
+    if (!avatar) {
+      setPreview(null);
+      return;
+    }
+    const objectUrl = URL.createObjectURL(avatar);
+    setPreview(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [avatar]);
 
   const validateForm = () => {
     const { fullName, email, designation, companyId } = employeeData;
     if (!fullName || !email || !designation || !companyId) {
       setError('Please fill in all required fields');
+      return false;
+    }
+    if (!avatar) {
+      setError('Please upload an avatar image');
       return false;
     }
     setError(null);
@@ -61,26 +71,37 @@ const EmployeeRegister = () => {
     }));
   };
 
+  const handleAvatarChange = (file) => {
+    setAvatar(file);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-  
+
     try {
       setIsLoading(true);
-      console.log('Submitting employee data:', employeeData); // ✅ ADD THIS
-      await createEmployee(employeeData);
+
+      // Use FormData to send file + data
+      const formData = new FormData();
+      Object.entries(employeeData).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+      formData.append('avatar', avatar); // key must match backend schema 'image'
+
+      await createEmployee(formData); // Make sure your api accepts FormData and content-type is multipart/form-data
+
       navigate('/employees');
     } catch (err) {
-      console.error('Create employee error:', err); // ✅ Detailed logging
+      console.error('Create employee error:', err);
       setError('Failed to register employee');
     } finally {
       setIsLoading(false);
     }
   };
-  
-  
+
   return (
-    <div className="h-[120vh] w-full bg-gradient-to-b from-white via-green-50 to-lime-50 flex flex-col justify-between p-5">
+    <div className="h-[140vh] w-full bg-gradient-to-b from-white via-gray-50 to-gray-100 flex flex-col justify-between p-5">
       <div>
         <FormNav />
       </div>
@@ -90,7 +111,16 @@ const EmployeeRegister = () => {
 
         {error && <p className="text-red-600 mb-3">{error}</p>}
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-15">
+        <form onSubmit={handleSubmit} className="space-y-4 mt-8">
+            <div className="flex justify-center">
+              <AvatarUpload
+              type="employee"
+              previewImage={preview}
+              inputRef={avatarInputRef}
+              onChange={handleAvatarChange}
+              error={error}
+              />
+            </div>
           {[
             { name: 'fullName', label: 'Full Name' },
             { name: 'email', label: 'Email' },
