@@ -70,6 +70,7 @@ const CompanyRegisteration = () => {
         formData.append(key, value);
       });
       formData.append('logo', logo);
+      await createCompany(formData);
       navigate('/companies');
     } catch (err) {
       console.error(err);
