@@ -23,13 +23,13 @@ The system allows storing detailed employee information (LinkedIn, GitHub, Email
 ## 📸 Screenshots
 
 ### 🏠 Home Page
-![Home](./public/Home.png)
+![Home](./Public/HomePage.png)
 
 ### 👨‍💼 Employee Registration
-![Employee Register](./public/EmployeeRegister.png)
+![Employee Register](./Public/EmployeeRegister.png)
 
 ### 🏢 Company Registration
-![Company Register](./public/CompanyRegister.png)
+![Company Register](./Public/CompanyRegister.png)
 
 ---
 
