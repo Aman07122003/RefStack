@@ -7,7 +7,7 @@ const QuickAction = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-5">
       <h2 className="font-extrabold text-black mb-7 text-3xl">Quick Actions</h2>
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
 

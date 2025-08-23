@@ -3,35 +3,34 @@ import { FiInstagram, FiLinkedin, FiPhone } from 'react-icons/fi';
 
 const Footer = () => {
   return (
-    <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center">
-            
-            <h1 className='text-2xl font-extrabold text-gray-900'>RefStack <span className='font-extrabold text-3xl text-green-400'>.</span></h1>
-            <div className="mt-4 md:mt-0">
-              <p className="text-gray-400">© {new Date().getFullYear()} RefStack. All rights reserved.</p>
-            </div>
-            <div className='flex gap-3'>
-                <div className="mt-4 md:mt-0 flex bg-green-500 p-2 rounded-full space-x-6">
-                <a href="#" className="text-white">
-                    <span className="sr-only">Contact</span>
-                    <FiPhone className="h-6 w-6" />
-                </a>
-                </div>
-                <div className="mt-4 md:mt-0 flex bg-green-500 p-2 rounded-full space-x-6">
-                <a href="#" className="text-white">
-                    <span className="sr-only">Contact</span>
-                    <FiInstagram className="h-6 w-6" />
-                </a>
-                </div>
-                <div className="mt-4 md:mt-0 flex bg-green-500 p-2 rounded-full space-x-6">
-                <a href="#" className="text-white">
-                    <span className="sr-only">Contact</span>
-                    <FiLinkedin className="h-6 w-6" />
-                </a>
-                </div>
-            </div>
-          </div>
+    <footer className="w-full bg-white/80 backdrop-blur-md border-t border-gray-200 px-4 rounded-2xl py-6 mt-3">
+      <div className="flex flex-col md:flex-row justify-between items-center w-full gap-4">
+        
+        {/* Logo */}
+        <h1 className="text-2xl font-extrabold text-gray-900 text-center md:text-left">
+          RefStack <span className="font-extrabold text-3xl text-green-400">.</span>
+        </h1>
+        
+        {/* Copyright */}
+        <p className="text-gray-500 text-center md:text-left">
+          © {new Date().getFullYear()} RefStack. All rights reserved.
+        </p>
+        
+        {/* Social Links */}
+        <div className="flex gap-4 justify-center md:justify-end">
+          <a href="#" className="bg-green-500 p-2 rounded-full text-white hover:bg-green-600 transition">
+            <FiPhone className="h-5 w-5" />
+          </a>
+          <a href="#" className="bg-green-500 p-2 rounded-full text-white hover:bg-green-600 transition">
+            <FiInstagram className="h-5 w-5" />
+          </a>
+          <a href="#" className="bg-green-500 p-2 rounded-full text-white hover:bg-green-600 transition">
+            <FiLinkedin className="h-5 w-5" />
+          </a>
         </div>
+
+      </div>
+    </footer>
   )
 }
 

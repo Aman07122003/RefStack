@@ -105,9 +105,9 @@ const EmployeeRegister = () => {
       <div>
         <FormNav />
       </div>
-      <main className='p-4'>
+      <main className='p-4 mt-2'>
       <div className="max-w-xl mx-auto">
-        <h2 className="font-bold mb-4 flex justify-center text-4xl font-mono">Register Employee</h2>
+        <h2 className="font-bold mb-4 flex justify-center md:text-4xl text-xl font-mono">Register Employee</h2>
 
         {error && <p className="text-red-600 mb-3">{error}</p>}
 

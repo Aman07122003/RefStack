@@ -84,9 +84,9 @@ const CompanyRegisteration = () => {
     <div className="min-h-screen w-full bg-gradient-to-b from-white via-gray-50 to-gray-100 flex flex-col justify-between p-5">
       <FormNav />
 
-      <main className="p-4">
+      <main className="p-4 mt-2">
         <div className="max-w-xl mx-auto">
-          <h2 className="font-bold mb-4 flex justify-center text-4xl font-mono">Company Registration</h2>
+          <h2 className="font-bold mb-4 flex justify-center md:text-4xl text-xl font-mono">Company Registration</h2>
 
           {error && <p className="text-red-600 mb-3">{error}</p>}
 
