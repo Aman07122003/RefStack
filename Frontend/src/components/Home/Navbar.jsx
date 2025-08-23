@@ -31,16 +31,16 @@ const Navbar = () => {
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-4">
-          <button onClick={() => navigate('/companies/new')} className={navButton}>
+          <button onClick={() => navigate('/')} className={navButton}>
             Features
           </button>
-          <button onClick={() => navigate('/companies')} className={navButton}>
+          <button onClick={() => navigate('/')} className={navButton}>
             Dashboard
           </button>
-          <button onClick={() => navigate('/companies')} className={navButton}>
+          <button onClick={() => navigate('/')} className={navButton}>
             About
           </button>
-          <button onClick={() => navigate('/companies')} className={navButton}>
+          <button onClick={() => navigate('/')} className={navButton}>
             Contact
           </button>
         </div>
@@ -56,16 +56,16 @@ const Navbar = () => {
       {/* Mobile Dropdown */}
       {isOpen && (
         <div className="absolute top-[80px] left-0 w-full bg-white/90 backdrop-blur-md shadow-lg flex flex-col items-center gap-4 py-6 md:hidden">
-          <button onClick={() => { navigate('/companies/new'); setIsOpen(false); }} className={navButton}>
+          <button onClick={() => { navigate('/'); setIsOpen(false); }} className={navButton}>
             Features
           </button>
-          <button onClick={() => { navigate('/companies'); setIsOpen(false); }} className={navButton}>
+          <button onClick={() => { navigate('/'); setIsOpen(false); }} className={navButton}>
             Dashboard
           </button>
-          <button onClick={() => { navigate('/companies'); setIsOpen(false); }} className={navButton}>
+          <button onClick={() => { navigate('/'); setIsOpen(false); }} className={navButton}>
             About
           </button>
-          <button onClick={() => { navigate('/companies'); setIsOpen(false); }} className={navButton}>
+          <button onClick={() => { navigate('/'); setIsOpen(false); }} className={navButton}>
             Contact
           </button>
         </div>
