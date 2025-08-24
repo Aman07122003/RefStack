@@ -148,8 +148,8 @@ const CompanyRegisteration = () => {
                 className="w-full p-2 border rounded"
               >
                 <option value="Under 2 LPA">Under 2 LPA</option>
-                <option value="2 – 5 LPA">2 – 5 LPA</option>
-                <option value="5 – 10 LPA">5 – 10 LPA</option>
+                <option value="2 - 5 LPA">2 – 5 LPA</option>
+                <option value="5 - 10 LPA">5 – 10 LPA</option>
                 <option value="Over 10 LPA">Over 10 LPA</option>
               </select>
             </div>
