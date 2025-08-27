@@ -101,10 +101,33 @@ const Employee = () => {
                   src={employee.image}
                   className="h-28 w-28 rounded-full border-1 border-gray-200 object-cover mb-3"
                 />
+                
                 <h2 className="text-lg font-semibold text-green-500">{employee.fullName}</h2>
-                <p className="text-gray-600">{employee.email}</p>
+
+                {/* Emails */}
+                {/* Emails */}
+                  {Array.isArray(employee.emails) && employee.emails.length > 0 ? (
+                    <div className="text-gray-600 text-sm">
+                      {employee.emails.map((email, idx) => (
+                        <p key={idx}>
+                          <a href={`mailto:${email}`} className="hover:underline">
+                            {email}
+                          </a>
+                        </p>
+                      ))}
+                    </div>
+                  ) : employee.email ? (
+                    <div className="text-gray-600 text-sm">
+                      <p>
+                        <a href={`mailto:${employee.email}`} className="hover:underline">
+                          {employee.email}
+                        </a>
+                      </p>
+                    </div>
+                  ) : null}
                 <p className="mt-1 text-sm text-gray-500">{employee.designation}</p>
-                <div className="mt-4 space-x-3 flex">
+
+                <div className="mt-4 space-x-3 flex flex-wrap justify-center">
                   {employee.linkedIn && (
                     <a
                       href={employee.linkedIn}
@@ -117,24 +140,24 @@ const Employee = () => {
                   )}
                   {employee.github && (
                     <a
-                      href={employee.instagram}
+                      href={employee.github}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-black-600 hover:text-gray-800"
+                      className="text-black hover:text-gray-800"
                     >
                       <FiGithub className="w-6 h-6" />
                     </a>
                   )}
-                  {employee.PhoneNumber && (
-                    <a
-                      href={employee.PhoneNumber.startsWith('http') ? employee.PhoneNumber : `tel:${employee.PhoneNumber}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-black-600 hover:text-gray-800"
-                    >
-                      <FiPhoneCall className="w-6 h-6" />
-                    </a>
-                  )}
+                  {Array.isArray(employee.phoneNumbers) &&
+                    employee.phoneNumbers.map((phone, idx) => (
+                      <a
+                        key={idx}
+                        href={`tel:${phone}`}
+                        className="text-black hover:text-gray-800"
+                      >
+                        <FiPhoneCall className="w-6 h-6" />
+                      </a>
+                    ))}
                   {employee.twitter && (
                     <a
                       href={employee.twitter}
@@ -143,14 +166,6 @@ const Employee = () => {
                       className="text-blue-400 hover:text-blue-600"
                     >
                       <FiTwitter className="w-6 h-6" />
-                    </a>
-                  )}
-                  {employee.email && (
-                    <a
-                      href={`mailto:${employee.email}`}
-                      className="text-gray-600 hover:text-gray-800"
-                    >
-                      <FiMail className="w-6 h-6" />
                     </a>
                   )}
                 </div>

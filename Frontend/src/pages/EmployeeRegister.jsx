@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import FormNav from '../components/FormNav';
 import AvatarUpload from '../components/EmployeeRegisteration/AvatarUpload';
 import Footer from '../components/Home/Footer';
-import {getCompanies } from '../api/Companies.api'; 
+import { getCompanies } from '../api/Companies.api'; 
 import { createEmployee } from '../api/Employees.api'; 
 
 const EmployeeRegister = () => {
@@ -11,14 +11,43 @@ const EmployeeRegister = () => {
   const [companies, setCompanies] = useState([]);
   const [employeeData, setEmployeeData] = useState({
     fullName: '',
-    email: '',
-    PhoneNumber: '',
+    emails: [''],       // start with one email input
+    phoneNumbers: [''], // start with one phone number input
     designation: '',
     linkedIn: '',
     github: '',
     twitter: '',
     companyId: '',
   });
+  
+  // handle change for array fields
+  const handleArrayChange = (e, index, field) => {
+    const { value } = e.target;
+    setEmployeeData((prev) => {
+      const updated = [...prev[field]];
+      updated[index] = value;
+      return { ...prev, [field]: updated };
+    });
+  };
+  
+  // add new input field
+  const addField = (field) => {
+    setEmployeeData((prev) => ({
+      ...prev,
+      [field]: [...prev[field], ''],
+    }));
+  };
+
+  // remove input field
+  const removeField = (field, index) => {
+    if (employeeData[field].length <= 1) return; // Don't remove the last field
+    
+    setEmployeeData((prev) => ({
+      ...prev,
+      [field]: prev[field].filter((_, i) => i !== index)
+    }));
+  };
+  
   const [avatar, setAvatar] = useState(null); // store image file
   const [preview, setPreview] = useState(null); // store preview URL
   const avatarInputRef = useRef(null);
@@ -50,25 +79,46 @@ const EmployeeRegister = () => {
   }, [avatar]);
 
   const validateForm = () => {
-    const { fullName, email, designation, companyId } = employeeData;
-    if (!fullName || !email || !designation || !companyId) {
+    const { fullName, emails, designation, companyId } = employeeData;
+    
+    // Check required fields
+    if (!fullName.trim() || !designation.trim() || !companyId) {
       setError('Please fill in all required fields');
       return false;
     }
+    
+    // Check if at least one email is provided and valid
+    const validEmails = emails.filter(email => email.trim() && /\S+@\S+\.\S+/.test(email));
+    if (validEmails.length === 0) {
+      setError('Please provide at least one valid email address');
+      return false;
+    }
+    
     if (!avatar) {
       setError('Please upload an avatar image');
       return false;
     }
+    
     setError(null);
     return true;
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setEmployeeData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    
+    // Check if this is an array field
+    if (name === 'emails' || name === 'phoneNumbers') {
+      // This shouldn't happen with the current structure, but handle it
+      setEmployeeData(prev => ({
+        ...prev,
+        [name]: [value] // Convert to array with single item
+      }));
+    } else {
+      setEmployeeData(prev => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleAvatarChange = (file) => {
@@ -84,94 +134,188 @@ const EmployeeRegister = () => {
 
       // Use FormData to send file + data
       const formData = new FormData();
-      Object.entries(employeeData).forEach(([key, value]) => {
-        formData.append(key, value);
+      
+      // Add non-array fields
+      formData.append('fullName', employeeData.fullName);
+      formData.append('designation', employeeData.designation);
+      formData.append('linkedIn', employeeData.linkedIn);
+      formData.append('github', employeeData.github);
+      formData.append('twitter', employeeData.twitter);
+      formData.append('companyId', employeeData.companyId);
+      
+      // Add array fields - check your API expects this format
+      employeeData.emails.forEach(email => {
+        if (email.trim()) formData.append('emails', email);
       });
-      formData.append('avatar', avatar); // key must match backend schema 'image'
+      
+      employeeData.phoneNumbers.forEach(phone => {
+        if (phone.trim()) formData.append('phoneNumbers', phone);
+      });
+      
+      formData.append('avatar', avatar); // Changed from 'avatar' to 'image' to match your display component
 
-      await createEmployee(formData); // Make sure your api accepts FormData and content-type is multipart/form-data
-
+      await createEmployee(formData);
       navigate('/employees');
     } catch (err) {
       console.error('Create employee error:', err);
-      setError('Failed to register employee');
+      setError(err.response?.data?.message || 'Failed to register employee');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="h-[140vh] w-full bg-gradient-to-b from-white via-gray-50 to-gray-100 flex flex-col justify-between p-5">
+    <div className="min-h-screen w-full bg-gradient-to-b from-white via-gray-50 to-gray-100 flex flex-col">
       <div>
         <FormNav />
       </div>
-      <main className='p-4 mt-2'>
-      <div className="max-w-xl mx-auto">
-        <h2 className="font-bold mb-4 flex justify-center md:text-4xl text-xl font-mono">Register Employee</h2>
+      
+      <main className="flex-1 p-4 mt-2">
+        <div className="max-w-xl mx-auto">
+          <h2 className="font-bold mb-4 text-center text-2xl md:text-4xl font-mono">
+            Register Employee
+          </h2>
 
-        {error && <p className="text-red-600 mb-3">{error}</p>}
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              {error}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-8">
+          <form onSubmit={handleSubmit} className="space-y-4 mt-8">
             <div className="flex justify-center">
               <AvatarUpload
-              type="employee"
-              previewImage={preview}
-              inputRef={avatarInputRef}
-              onChange={handleAvatarChange}
-              error={error}
+                type="employee"
+                previewImage={preview}
+                inputRef={avatarInputRef}
+                onChange={handleAvatarChange}
+                error={error}
               />
             </div>
-          {[
-            { name: 'fullName', label: 'Full Name' },
-            { name: 'email', label: 'Email' },
-            { name: 'PhoneNumber', label: 'Phone Number' },
-            { name: 'designation', label: 'Designation' },
-            { name: 'linkedIn', label: 'LinkedIn' },
-            { name: 'twitter', label: 'Twitter' },
-            { name: 'github', label: 'GitHub' },
-          ].map(({ name, label }) => (
-            <div key={name}>
-              <label className="block text-sm font-medium">{label}</label>
-              <input
-                type="text"
-                name={name}
-                value={employeeData[name]}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded"
-                required={['fullName', 'email', 'designation'].includes(name)}
-              />
-            </div>
-          ))}
+            
+            {[
+              { name: 'fullName', label: 'Full Name', type: 'text', required: true },
+              { name: 'designation', label: 'Designation', type: 'text', required: true },
+              { name: 'linkedIn', label: 'LinkedIn URL', type: 'url' },
+              { name: 'twitter', label: 'Twitter URL', type: 'url' },
+              { name: 'github', label: 'GitHub URL', type: 'url' },
+            ].map(({ name, label, type = 'text', required = false }) => (
+              <div key={name}>
+                <label className="block text-sm font-medium mb-1">
+                  {label} {required && <span className="text-red-500">*</span>}
+                </label>
+                <input
+                  type={type}
+                  name={name}
+                  value={employeeData[name]}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required={required}
+                />
+              </div>
+            ))}
 
-          {/* Company Select Dropdown */}
-          <div>
-            <label className="block text-sm font-medium">Company</label>
-            <select
-              name="companyId"
-              value={employeeData.companyId}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded"
-              required
-            >
-              <option value="">Select Company</option>
-              {companies.map((company) => (
-                <option key={company._id} value={company._id}>
-                  {company.name}
-                </option>
+            {/* Emails Section */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Email Addresses <span className="text-red-500">*</span>
+              </label>
+              {employeeData.emails.map((email, index) => (
+                <div key={index} className="flex items-center mb-2">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => handleArrayChange(e, index, 'emails')}
+                    className="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required={index === 0}
+                    placeholder="email@example.com"
+                  />
+                  {employeeData.emails.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeField('emails', index)}
+                      className="ml-2 text-red-500 hover:text-red-700"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
               ))}
-            </select>
-          </div>
+              <button
+                type="button"
+                onClick={() => addField('emails')}
+                className="text-blue-600 hover:text-blue-800 text-sm mt-1"
+              >
+                + Add another email
+              </button>
+            </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-blue-600 text-white py-2 mt-4 rounded hover:bg-blue-700"
-          >
-            {isLoading ? 'Registering...' : 'Register Employee'}
-          </button>
-        </form>
-      </div>
+            {/* Phone Numbers Section */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Phone Numbers
+              </label>
+              {employeeData.phoneNumbers.map((phone, index) => (
+                <div key={index} className="flex items-center mb-2">
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => handleArrayChange(e, index, 'phoneNumbers')}
+                    className="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="+1234567890"
+                  />
+                  {employeeData.phoneNumbers.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeField('phoneNumbers', index)}
+                      className="ml-2 text-red-500 hover:text-red-700"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => addField('phoneNumbers')}
+                className="text-blue-600 hover:text-blue-800 text-sm mt-1"
+              >
+                + Add another phone
+              </button>
+            </div>
+
+            {/* Company Select Dropdown */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Company <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="companyId"
+                value={employeeData.companyId}
+                onChange={handleInputChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">Select Company</option>
+                {companies.map((company) => (
+                  <option key={company._id} value={company._id}>
+                    {company.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+            >
+              {isLoading ? 'Registering...' : 'Register Employee'}
+            </button>
+          </form>
+        </div>
       </main>
+      
       <Footer />
     </div>
   );

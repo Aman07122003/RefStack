@@ -7,11 +7,13 @@ const employee = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    email: {
-      type: String,
-      trim: true,
-      lowercase: true,
-    },
+    emails: [
+      {
+        type: String,
+        trim: true,
+        lowercase: true,
+      }
+    ],
     image: {
       type: String,
       required: true,
@@ -29,10 +31,12 @@ const employee = new mongoose.Schema(
     github: {
       type: String,
     },
-    PhoneNumber: {
-      type: String,
-      trim: true,
-    },
+    PhoneNumbers: [
+      {
+        type: String,
+        trim: true,
+      }
+    ],
     successlevel: {
         type: String,
         enum: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],

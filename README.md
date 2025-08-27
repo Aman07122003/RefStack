@@ -1,7 +1,7 @@
 # 🏢 Employee & Company Registry Application
 
 A full-stack registry application to manage **employees** and **companies** in one place.  
-The system allows storing detailed employee information (LinkedIn, GitHub, Email, etc.) as well as company details (social media links, career page, etc.)
+The system allows storing detailed employee information (LinkedIn, GitHub, Email, etc.) as well as company details (social media links, career page, etc.).
 
 ---
 

@@ -6,6 +6,7 @@ import Employee from './pages/Employee.jsx';
 import Companies from './pages/Companies.jsx';
 import CompanyRegisteration from './pages/CompanyRegisteration.jsx';
 import Home from './pages/Home.jsx';
+import GitRepo from './pages/GitRepo.jsx';
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
         <Route path="/employees" element={<Employee />} />
         <Route path="/companies" element={<Companies />} />
         <Route path="/companies/new" element={<CompanyRegisteration />} />
+        <Route path='/git-repo' element={<GitRepo/>}/>
       </Routes>
     </Router>
   );

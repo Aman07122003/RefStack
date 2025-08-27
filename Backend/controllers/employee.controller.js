@@ -3,56 +3,75 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { APIError } from "../utils/APIError.js";
 import { APIResponse } from "../utils/APIResponse.js";
 import { uploadImage } from "../utils/cloudinary.js";
+import mongoose from "mongoose";
 
 
 const createEmployee = asyncHandler(async (req, res) => {
     try {
-        const { fullName, email, designation, linkedIn, twitter, github, PhoneNumber, successlevel, companyId } = req.body;
-        let avatarUrl = "";
-        if (req.file || (req.files && req.files.avatar)) {
-            avatarUrl = req.file?.path || req.files.avatar[0]?.path;
-        }
-        if (!avatarUrl) {
-            return res
-                .status(400)
-                .json(new APIError(400, "Avatar image is required"));
-        }
-        const avatarRes = await uploadImage(avatarUrl);
-        if (!avatarRes?.secure_url) {
-            return res
-                .status(500)
-                .json(new APIError(500, "Failed to upload avatar image"));
-        }
-        const employee = await Employee.create({
-            fullName,
-            email,
-            image: avatarRes.url,
-            designation,
-            linkedIn,
-            twitter,
-            github,
-            PhoneNumber,
-            successlevel,
-            companyId
-        });
-        if (!employee) {
-            return res
-                .status(400)
-                .json(new APIError(400, "Failed to create employee"));
-        }
+      const { 
+        fullName, 
+        emails, 
+        designation, 
+        linkedIn, 
+        twitter, 
+        github, 
+        phoneNumbers, 
+        successlevel, 
+        companyId 
+      } = req.body;
+  
+      let avatarUrl = "";
+      if (req.file || (req.files && req.files.avatar)) {
+        avatarUrl = req.file?.path || req.files.avatar[0]?.path;
+      }
+      if (!avatarUrl) {
         return res
-            .status(201)
-            .json(
-                new APIResponse(
-                    201, 
-                    employee, "Employee created successfully"));
-    }
-    catch (error) {
+          .status(400)
+          .json(new APIError(400, "Avatar image is required"));
+      }
+  
+      const avatarRes = await uploadImage(avatarUrl);
+      if (!avatarRes?.secure_url) {
         return res
-            .status(500)
-            .json(new APIError(500, "Failed to create employee", error));
+          .status(500)
+          .json(new APIError(500, "Failed to upload avatar image"));
+      }
+  
+      const employee = await Employee.create({
+        fullName,
+        emails: Array.isArray(emails) ? emails : [emails],   // ensure array
+        image: avatarRes.url,
+        designation,
+        linkedIn,
+        twitter,
+        github,
+        phoneNumbers: Array.isArray(phoneNumbers) ? phoneNumbers : [phoneNumbers], // ensure array
+        successlevel,
+        companyId,
+      });
+  
+      if (!employee) {
+        return res
+          .status(400)
+          .json(new APIError(400, "Failed to create employee"));
+      }
+  
+      return res
+        .status(201)
+        .json(
+          new APIResponse(
+            201, 
+            employee, 
+            "Employee created successfully"
+          )
+        );
+    } catch (error) {
+      return res
+        .status(500)
+        .json(new APIError(500, "Failed to create employee", error));
     }
-});
+  });
+  
 
 const getAllEmployees = asyncHandler(async (req, res) => {
     try {
@@ -127,17 +146,24 @@ const deleteEmployee = asyncHandler(async (req, res) => {
 
 const getEmployeesByCompanyId = asyncHandler(async (req, res) => {
     try {
-        const employees = await Employee.find({ companyId: req.params.companyId }).populate("companyId");
-        if (employees.length === 0) {
-            return res
-                .status(404)
-                .json(new APIError(404, "No employees found for this company"));
+        const { companyId } = req.params;
+
+        // Validate ObjectId
+        if (!mongoose.Types.ObjectId.isValid(companyId)) {
+            return res.status(400).json(new APIError(400, "Invalid company ID"));
         }
+
+        const employees = await Employee.find({ companyId })
+            .populate("companyId")
+            .lean();
+
         return res
             .status(200)
-            .json(new APIResponse(200, employees, "Employees retrieved successfully"));
-    }
-    catch (error) {
+            .json(new APIResponse(200, employees, employees.length
+                ? "Employees retrieved successfully"
+                : "No employees found for this company"
+            ));
+    } catch (error) {
         return res
             .status(500)
             .json(new APIError(500, "Failed to retrieve employees", error));
