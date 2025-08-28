@@ -2,12 +2,14 @@ import express from 'express';
 import {
     createRepo,
     getAllRepos,
-    getRepoById,
+    getReposByTag,
 } from '../controllers/githubrepo.controller.js';
 
 const router = express.Router();
 router.route("/").post(createRepo);
 router.get('/', getAllRepos);
-router.get('/:id', getRepoById);
+// routes/repoRoutes.js
+router.post('/filter', getReposByTag);
+
 
 export default router;

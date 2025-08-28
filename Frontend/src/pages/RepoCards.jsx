@@ -3,6 +3,7 @@ import React from "react";
 const RepoCards = ({ repos }) => {
   // Normalize: repos could be an array OR an APIResponse-like object
   const list = Array.isArray(repos) ? repos : (Array.isArray(repos?.data) ? repos.data : []);
+  console.log("RepoCards received repos:", repos);
 
   if (!Array.isArray(list) || list.length === 0) {
     return (
@@ -72,14 +73,11 @@ const RepoCards = ({ repos }) => {
                     <h2 className="text-lg font-semibold text-gray-900 truncate">
                       {repo.name}
                     </h2>
-                    <p className="text-xs text-gray-500 truncate">
-                      {repo.full_name || "GitHub Repository"}
-                    </p>
+                    <span className="text-xs font-medium bg-white text-blue-600 px-2.5 py-1 rounded-full shadow-sm whitespace-nowrap">
+                      {repo.tag || "General"}
+                    </span>
                   </div>
                 </div>
-                <span className="text-xs font-medium bg-white text-blue-600 px-2.5 py-1 rounded-full shadow-sm whitespace-nowrap">
-                  {repo.tag || "General"}
-                </span>
               </div>
             </div>
 

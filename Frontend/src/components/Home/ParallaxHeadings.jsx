@@ -55,10 +55,10 @@ export default function ParallaxHeadings() {
             Register Your Company
           </button>
           <button
-            onClick={() => navigate("/companies")}
+            onClick={() => navigate("/git-repo")}
             className="px-6 sm:px-8 md:px-10 py-3 md:py-4 border border-transparent font-medium rounded-md text-white bg-green-500 hover:bg-green-600 text-sm sm:text-base md:text-lg transition duration-300"
           >
-            Browse Companies
+            GitHub Arcives
           </button>
         </motion.div>
       </div>

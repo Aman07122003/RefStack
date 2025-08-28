@@ -71,25 +71,26 @@ const getAllRepos = asyncHandler(async (req, res) => {
 });
 
 // Get repo by ID
-const getRepoById = asyncHandler(async (req, res) => {
+// controller/repoController.js
+const getReposByTag = asyncHandler(async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json(new APIError(400, "Invalid repository ID"));
+    const { tag } = req.body; // we will send tag in body (POST)
+
+    if (!tag) {
+      return res.status(400).json(new APIError(400, "Tag is required"));
     }
 
-    const repo = await Repo.findById(req.params.id);
-    if (!repo) {
-      return res.status(404).json(new APIError(404, "Repository not found"));
-    }
+    const repos = await Repo.find({ tag: tag });
 
-    return res.status(200).json(
-      new APIResponse(200, repo, "Repository retrieved successfully")
-    );
+    return res
+      .status(200)
+      .json(new APIResponse(200, repos, "Repositories filtered by tag"));
   } catch (error) {
     return res.status(500).json(
-      new APIError(500, "Failed to retrieve repository", error)
+      new APIError(500, "Failed to retrieve repositories by tag", error)
     );
   }
 });
 
-export { createRepo, getAllRepos, getRepoById };
+
+export { createRepo, getAllRepos, getReposByTag };
