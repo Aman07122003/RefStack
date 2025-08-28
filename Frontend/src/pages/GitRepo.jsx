@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, Menu, X } from 'lucide-react';
 import axios from 'axios';
 import RepoCards from "./RepoCards";
-import axiosInstance from '../utils/axiosInstance';
+import axiosInstance from '../utils/axiosInstance.js';
 
 const GitRepo = () => {
   const [sideView, setSideView] = useState(true);
