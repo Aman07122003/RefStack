@@ -20,7 +20,7 @@ const GitRepo = () => {
     "Fullstack",
     "DevOps",
     "Mobile",
-    "Data Science",
+    "3D Website",
     "Machine Learning",
     "AI",
     "Interview",
