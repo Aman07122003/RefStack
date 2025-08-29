@@ -6,7 +6,7 @@ import {
 } from '../controllers/githubrepo.controller.js';
 
 const router = express.Router();
-router.route("/").post(createRepo);
+router.post('/', createRepo);
 router.get('/', getAllRepos);
 // routes/repoRoutes.js
 router.post('/filter', getReposByTag);
