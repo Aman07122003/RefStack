@@ -39,7 +39,7 @@ const GitRepo = () => {
         url: repoLink, 
         tag: tag 
       });
-  
+      console.log("Response:", response);
       if (response.status === 201) {
         alert("Repository link submitted!");
         closeModal();
