@@ -11,7 +11,7 @@ import { upload } from '../middleware/multer.middleware.js';
 
 const router = express.Router();
 
-router.post('/notes', upload.array("images", 10), createNote);
+router.post('/', upload.array("images", 10), createNote);
 router.get('/', getAllNotes);
 router.get('/:id', getNoteById);
 router.put('/:id', updateNote);
