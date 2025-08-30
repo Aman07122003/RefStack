@@ -4,22 +4,23 @@ import cors from 'cors';
 import employeeRoutes from './routes/employee.routes.js';
 import companyRoutes from './routes/company.routes.js';
 import githubRepoRoutes from './routes/githubrepo.routes.js';
-
+import notesRoutes from './routes/notes.routes.js'; // ✅ import notes route
 
 const app = express();
 
 // ✅ Enable CORS BEFORE any routes
 app.use(cors());
 
-// Body parser
+// ✅ Body parser
 app.use(express.json());
 
-// Routes
+// ✅ Routes
 app.use('/api/employees', employeeRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/githubrepos', githubRepoRoutes);
+app.use('/api/notes', notesRoutes); // ✅ add notes route
 
-// Root route
+// ✅ Root route
 app.get('/', (req, res) => {
   res.send('Hello from Express!');
 });
