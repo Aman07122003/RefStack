@@ -4,10 +4,15 @@ const noteSchema = new mongoose.Schema(
   {
     question: {
       heading: { type: String, required: true },
+      description: { type: String },
       examples: [
         {
-          description: { type: String, required: true },
-          images: [{ type: String }]
+          type: {
+            type: String,
+            enum: ["text", "image"],
+            required: true,
+          },
+          value: { type: String, required: true },
         }
       ]
     },
@@ -15,21 +20,13 @@ const noteSchema = new mongoose.Schema(
     solutions: [
       {
         type: {
-          type: String, // e.g. "Brute Force", "Better Approach", "Best Approach"
+          type: String,
+          enum: ["text", "image", "code"],
           required: true
         },
-        paragraphs: [{ type: String }], 
-        images: [{ type: String }],
-        code: {
-          language: { type: String, default: "javascript" },
-          content: { type: String }
-        }
+        value: { type: String, required: true },
       }
     ],
-
-    solvedBy: [{ type: String }], 
-
-    noteType: [{ type: String, required: true }], 
 
     category: { type: String },
     subCategory: { type: String },

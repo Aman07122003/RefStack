@@ -7,150 +7,331 @@ import { uploadImage } from "../utils/cloudinary.js";
 import PDFDocument from "pdfkit";
 
 const createNote = asyncHandler(async (req, res) => {
-    try {
-      const {
-        question,
-        solutions,
-        solvedBy,
-        noteType,
-        category,
-        subCategory,
-        tags,
-        difficulty,
-      } = req.body;
-  
-      if (!question?.heading) {
-        throw new APIError(400, "Question heading is required");
-      }
-      if (!noteType || !Array.isArray(noteType) || noteType.length === 0) {
-        throw new APIError(400, "At least one note type is required");
-      }
-  
-      // Handle uploaded files (if any)
-      let uploadedImageUrls = [];
-      if (req.files && req.files.length > 0) {
-        for (const file of req.files) {
-          const result = await uploadImage(file.path);
-          uploadedImageUrls.push(result.secure_url);
-        }
-      }
-  
-      // Example: attach uploaded images to question.examples[0].images
-      if (question?.examples?.length > 0) {
-        question.examples[0].images = uploadedImageUrls;
-      }
-  
-      const newNote = await Note.create({
-        question,
-        solutions: solutions || [],
-        solvedBy: solvedBy || [],
-        noteType,
-        category: category || "",
-        subCategory: subCategory || "",
-        tags: tags || [],
-        difficulty: difficulty || "",
-      });
-  
-      return res
-        .status(201)
-        .json(new APIResponse(201, "Note created successfully", newNote));
-    } catch (error) {
-      console.error(error);
-      throw new APIError(500, "Failed to create note");
-    }
-  });
-  
-
-const downloadNoteAsPDF = asyncHandler(async (req, res) => {
   try {
-    const { id } = req.params;
-    const note = await Note.findById(id);
+    const {
+      question,
+      solutions,
+      category,
+      subCategory,
+      tags,
+      difficulty,
+      source,
+    } = req.body;
 
-    if (!note) {
-      throw new APIError(404, "Note not found");
+    if (!question?.heading) {
+      throw new APIError(400, "Question heading is required");
     }
 
-    // Create PDF
-    const doc = new PDFDocument({ margin: 50 });
-
-    // Set headers so browser opens Save As dialog
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename=note-${note._id}.pdf`
-    );
-
-    // Pipe doc directly to response
-    doc.pipe(res);
-
-    // ================================
-    // PDF CONTENT
-    // ================================
-    // Question Heading
-    doc.fontSize(20).text(note.question.heading, { underline: true });
-    doc.moveDown();
-
-    // Question Examples
-    if (note.question.examples?.length) {
-      doc.fontSize(14).text("Examples:");
-      note.question.examples.forEach((ex, i) => {
-        doc.moveDown(0.5).fontSize(12).text(`${i + 1}. ${ex.description}`);
-      });
+    // Handle uploaded files (if any)
+    let uploadedImageUrls = [];
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const result = await uploadImage(file.path);
+        uploadedImageUrls.push(result.secure_url);
+      }
     }
 
-    doc.moveDown();
-
-    // Solutions
-    if (note.solutions?.length) {
-      doc.fontSize(14).text("Solutions:");
-      note.solutions.forEach((sol, i) => {
-        doc.moveDown().fontSize(13).text(`${i + 1}. ${sol.type}`);
-
-        sol.paragraphs.forEach((p) => {
-          doc.fontSize(12).text(`- ${p}`);
+    // Add uploaded images as examples
+    if (uploadedImageUrls.length > 0) {
+      uploadedImageUrls.forEach((url) => {
+        if (!question.examples) question.examples = [];
+        question.examples.push({
+          type: "image",
+          value: url,
         });
-
-        if (sol.code?.content) {
-            doc.moveDown()
-              .font("Courier")
-              .fontSize(10)
-              .text(sol.code.content, {
-                width: 450,
-                continued: false,
-              });
-            doc.font("Helvetica");
-          }          
       });
     }
 
-    // Solved By
-    if (note.solvedBy?.length) {
-      doc.moveDown().fontSize(12).text(`Solved By: ${note.solvedBy.join(", ")}`);
-    }
-
-    // Note Type
-    if (note.noteType?.length) {
-      doc.fontSize(12).text(`Note Type: ${note.noteType.join(", ")}`);
-    }
-
-    // Metadata
-    if (note.category) doc.fontSize(12).text(`Category: ${note.category}`);
-    if (note.subCategory) doc.fontSize(12).text(`SubCategory: ${note.subCategory}`);
-    if (note.difficulty) doc.fontSize(12).text(`Difficulty: ${note.difficulty}`);
-    if (note.source) doc.fontSize(12).text(`Source: ${note.source}`);
-
-    // Footer
-    doc.moveDown(2).fontSize(10).text(`Generated on: ${new Date().toLocaleString()}`, {
-      align: "right",
+    const newNote = await Note.create({
+      question: {
+        heading: question.heading,
+        description: question.description || "",
+        examples: question.examples || [],
+      },
+      solutions: (solutions || []).map((s) => ({
+        type: s.type,
+        value: s.value,
+      })),
+      category: category || undefined,
+      subCategory: subCategory || undefined,
+      tags: Array.isArray(tags) ? tags : [],
+      difficulty: ["Easy", "Medium", "Hard"].includes(difficulty)
+        ? difficulty
+        : "Medium",
+      source: source || "",
     });
 
-    // Finalize PDF
-    doc.end();
+    return res
+      .status(201)
+      .json(new APIResponse(201, "Note created successfully", newNote));
   } catch (error) {
     console.error(error);
-    throw new APIError(500, "Error generating PDF");
+    throw new APIError(500, "Failed to create note");
   }
+});
+
+  
+
+  const downloadNoteAsPDF = asyncHandler(async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const note = await Note.findById(id);
+  
+      if (!note) {
+        return next(new APIError(404, "Note not found"));
+      }
+  
+      // Create PDF with better margins
+      const doc = new PDFDocument({ 
+        margin: 40,
+        size: 'A4',
+        info: {
+          Title: note.question.heading,
+          Author: 'Notes App',
+          CreationDate: new Date(),
+        }
+      });
+  
+      // Set headers so browser downloads PDF
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=${note.question.heading.replace(/\s+/g, '-')}.pdf`
+      );
+  
+      // Pipe doc directly to response
+      doc.pipe(res);
+  
+      // ================================
+      // PDF STYLING FUNCTIONS
+      // ================================
+      
+      // Function to draw a horizontal line
+      const drawLine = (y) => {
+        doc.moveTo(50, y).lineTo(550, y).strokeColor('#cccccc').stroke();
+      };
+  
+      // Function to add section headers
+      const addSectionHeader = (text, y) => {
+        doc.fontSize(16).font('Helvetica-Bold').fillColor('#2c5282').text(text, 50, y);
+        doc.font('Helvetica').fillColor('#000000');
+        return y + 25;
+      };
+  
+      // Function to format code with syntax highlighting (basic)
+      const formatCode = (code, language) => {
+        // Basic syntax formatting - you could enhance this with a proper library
+        doc.font('Courier').fontSize(10).fillColor('#333333');
+        doc.text(code, { 
+          width: 500,
+          align: 'left',
+          indent: 20,
+          paragraphGap: 5
+        });
+        doc.font('Helvetica').fillColor('#000000');
+      };
+  
+      // ================================
+      // PDF CONTENT
+      // ================================
+  
+      let y = 50;
+  
+      // Header with title and metadata
+      doc.fontSize(24).font('Helvetica-Bold').fillColor('#2c5282')
+        .text(note.question.heading, 50, y, { width: 500, align: 'center' });
+      
+      y += 40;
+      
+      // Metadata row
+      doc.fontSize(10).font('Helvetica').fillColor('#666666');
+      
+      if (note.difficulty) {
+        const difficultyColor = note.difficulty === 'Easy' ? '#38a169' : 
+                               note.difficulty === 'Medium' ? '#d69e2e' : '#e53e3e';
+        doc.fillColor(difficultyColor).text(`Difficulty: ${note.difficulty}`, 50, y);
+      }
+      
+      if (note.category) doc.text(`Category: ${note.category}`, 200, y);
+      if (note.subCategory) doc.text(`Sub-category: ${note.subCategory}`, 350, y);
+      
+      y += 20;
+      doc.fillColor('#000000');
+      
+      // Tags
+      if (note.tags?.length) {
+        doc.fontSize(10).text('Tags: ' + note.tags.join(', '), 50, y);
+        y += 20;
+      }
+      
+      drawLine(y);
+      y += 20;
+  
+      // ================================
+      // EXAMPLES SECTION
+      // ================================
+      if (note.question.examples?.length) {
+        y = addSectionHeader("Examples", y);
+        
+        note.question.examples.forEach((ex, i) => {
+          if (ex.description) {
+            doc.fontSize(12).text(`${i + 1}. ${ex.description}`, 60, y, { width: 480 });
+            y += 20;
+          }
+          
+          // Handle example images
+          if (ex.images?.length) {
+            ex.images.forEach((imgData, imgIndex) => {
+              try {
+                // Convert base64 to buffer
+                const base64Data = imgData.replace(/^data:image\/\w+;base64,/, "");
+                const imageBuffer = Buffer.from(base64Data, 'base64');
+                
+                // Get image dimensions to scale properly
+                const img = doc.openImage(imageBuffer);
+                const aspectRatio = img.width / img.height;
+                const maxWidth = 400;
+                const width = Math.min(maxWidth, img.width);
+                const height = width / aspectRatio;
+                
+                // Add image caption
+                doc.fontSize(10).fillColor('#666666').text(`Example ${i + 1} - Image ${imgIndex + 1}`, 60, y);
+                y += 15;
+                
+                // Add the image
+                doc.image(imageBuffer, 60, y, { width: width, height: height });
+                y += height + 20;
+                
+              } catch (error) {
+                console.error("Error processing image:", error);
+                doc.fontSize(10).fillColor('#ff0000').text(`[Error loading image ${imgIndex + 1}]`, 60, y);
+                y += 15;
+              }
+              doc.fillColor('#000000');
+            });
+          }
+          
+          y += 10;
+        });
+        
+        y += 10;
+        drawLine(y);
+        y += 20;
+      }
+  
+      // ================================
+      // SOLUTIONS SECTION
+      // ================================
+      if (note.solutions?.length) {
+        y = addSectionHeader("Solutions", y);
+        
+        note.solutions.forEach((sol, i) => {
+          // Solution type header
+          doc.fontSize(14).font('Helvetica-Bold').fillColor('#4a5568')
+            .text(`${i + 1}. ${sol.type}`, 60, y);
+          y += 25;
+          
+          // Solution paragraphs
+          if (sol.paragraphs?.length) {
+            sol.paragraphs.forEach((p) => {
+              doc.fontSize(12).font('Helvetica').fillColor('#000000')
+                .text(`• ${p}`, 70, y, { width: 470, paragraphGap: 5 });
+              y += 20;
+            });
+          }
+
+          if (sol.images?.length) {
+            sol.images.forEach((imgData, imgIndex) => {
+              try {
+                // Convert base64 to buffer
+                const base64Data = imgData.replace(/^data:image\/\w+;base64,/, "");
+                const imageBuffer = Buffer.from(base64Data, 'base64');
+                
+                // Get image dimensions to scale properly
+                const img = doc.openImage(imageBuffer);
+                const aspectRatio = img.width / img.height;
+                const maxWidth = 400;
+                const width = Math.min(maxWidth, img.width);
+                const height = width / aspectRatio;
+                
+                // Add image caption
+                doc.fontSize(10).fillColor('#666666').text(`${sol.type} - Image ${imgIndex + 1}`, 60, y);
+                y += 15;
+                
+                // Add the image
+                doc.image(imageBuffer, 60, y, { width: width, height: height });
+                y += height + 20;
+                
+              } catch (error) {
+                console.error("Error processing image:", error);
+                doc.fontSize(10).fillColor('#ff0000').text(`[Error loading image ${imgIndex + 1}]`, 60, y);
+                y += 15;
+              }
+              doc.fillColor('#000000');
+            });
+          }
+          
+          // Solution code
+          if (sol.code?.content) {
+            y += 10;
+            doc.fontSize(11).font('Helvetica-Bold').fillColor('#4a5568')
+              .text(`Code (${sol.code.language || 'text'}):`, 70, y);
+            y += 20;
+            
+            // Code background
+            doc.rect(70, y, 470, 120).fill('#f7fafc').stroke('#e2e8f0');
+            
+            // Format code content
+            formatCode(sol.code.content, sol.code.language);
+            y += 130;
+          }
+          
+          y += 20;
+        });
+        
+        y += 10;
+        drawLine(y);
+        y += 20;
+      }
+  
+      // ================================
+      // METADATA SECTION
+      // ================================
+      y = addSectionHeader("Additional Information", y);
+      
+      doc.fontSize(11);
+      let metaY = y;
+      
+      if (note.solvedBy?.length) {
+        doc.text(`Solved By: ${note.solvedBy.join(", ")}`, 60, metaY);
+        metaY += 20;
+      }
+      
+      if (note.noteType?.length) {
+        doc.text(`Note Type: ${note.noteType.join(", ")}`, 60, metaY);
+        metaY += 20;
+      }
+      
+      if (note.source) {
+        doc.text(`Source: ${note.source}`, 60, metaY);
+        metaY += 20;
+      }
+      
+      // Footer
+      doc.fontSize(9).fillColor('#666666')
+        .text(`Generated on: ${new Date().toLocaleString()}`, 50, doc.page.height - 50, {
+          align: 'center',
+          width: 500
+        });
+  
+      // Finalize PDF
+      doc.end();
+    } catch (error) {
+      console.error("PDF generation error:", error.message);
+      return next(new APIError(500, "Error generating PDF"));
+    }
   });
+  
 
 const updateNote = asyncHandler(async (req, res) => {
     try {
