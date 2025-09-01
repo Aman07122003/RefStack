@@ -22,7 +22,6 @@ export const upload = multer({
   storage,
   limits: {
     fileSize: 15 * 1024 * 1024,   // max file size 15 MB
-    fieldSize: 25 * 1024 * 1024,  // max text field size 25 MB
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif/;

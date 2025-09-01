@@ -25,3 +25,18 @@ export const uploadImage = async (filePath) => {
         throw new Error('Image upload failed');
     }
 }
+
+// utils/cloudinary.js
+export const uploadMultipleImages = async (filePaths, folder = 'notes_images') => {
+    try {
+        const uploadPromises = filePaths.map(filePath => 
+            uploadImage(filePath, folder)
+        );
+        
+        const results = await Promise.all(uploadPromises);
+        return results.filter(result => result !== null); // Filter out failed uploads
+    } catch (error) {
+        console.error('Error uploading multiple images:', error);
+        return [];
+    }
+}
