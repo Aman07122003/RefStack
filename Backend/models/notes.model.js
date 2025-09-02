@@ -1,60 +1,46 @@
+// models/Note.js
 import mongoose from "mongoose";
 
-const exampleItemSchema = new mongoose.Schema({
-  type: {
-    type: String,
-    enum: ['text', 'image'],
-    required: true
-  },
-  value: {
-    type: String,
-    required: true
-  }
-});
-
-const solutionItemSchema = new mongoose.Schema({
-  type: {
-    type: String,
-    enum: ['text', 'image', 'code'],
-    required: true
-  },
-  value: {
-    type: String,
-    required: true
-  }
-});
-
-const exampleSchema = new mongoose.Schema({
-  items: [exampleItemSchema]
-});
-
-const solutionSchema = new mongoose.Schema({
-  items: [solutionItemSchema]
-});
-
-const noteSchema = new mongoose.Schema({
+const NoteSchema = new mongoose.Schema({
   question: {
-    heading: {
       type: String,
       required: true
+  },
+  file: {
+    public_id: {
+      type: String,
+      default: null
     },
-    description: {
+    url: {
+      type: String,
+      default: null
+    },
+    originalName: {
       type: String,
       default: ''
     },
-    examples: [exampleSchema]
+    size: {
+      type: Number,
+      default: 0
+    },
+    format: {
+      type: String,
+      default: 'pdf'
+    }
   },
-  solutions: [solutionSchema],
   category: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
   subCategory: {
     type: String,
-    default: ''
+    default: '',
+    trim: true
   },
   tags: [{
-    type: String
+    type: String,
+    trim: true
   }],
   difficulty: {
     type: String,
@@ -63,33 +49,18 @@ const noteSchema = new mongoose.Schema({
   },
   source: {
     type: String,
-    default: ''
+    default: '',
+    trim: true
   },
   video: {
     type: String,
-    default: ''
+    default: '',
+    trim: true
   },
-  images: [{
-    type: String // This will store paths to uploaded images
-  }],
   createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
     type: Date,
     default: Date.now
   }
 });
 
-// Update the updatedAt field before saving
-noteSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  next();
-});
-
-export default mongoose.model("Note", noteSchema);
-
-
-
-
+export default mongoose.model('Note', NoteSchema);

@@ -1,18 +1,18 @@
 import axiosInstance from "../utils/axiosInstance";
 
-export const createNote = async (data) => {
+export const createNote = async (formData) => {
     try {
-      const response = await axiosInstance.post('/api/notes', data, {
+      const response = await axiosInstance.post('/api/notes', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+          'Content-Type': 'multipart/form-data'
+        }
       });
-  
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
     }
-}
+  };
+  
 
 export const getAllNotes = async () => {
     try {

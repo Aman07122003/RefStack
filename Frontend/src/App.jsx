@@ -9,6 +9,7 @@ import Home from './pages/Home.jsx';
 import GitRepo from './pages/GitRepo.jsx';
 import Notes from './pages/Notes.jsx';
 import CreateNote from './pages/CreateNote.jsx';
+import Canva from './pages/Canva.jsx';
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
         <Route path='/git-repo' element={<GitRepo/>}/>
         <Route path='/notes' element={<Notes/>}/>
         <Route path='/notes/new' element={<CreateNote/>}/>
+        <Route path='/notes/canva' element={<Canva/>}/>
       </Routes>
     </Router>
   );

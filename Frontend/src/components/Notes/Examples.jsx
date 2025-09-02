@@ -1,7 +1,7 @@
 import React from "react";
-import { Trash2, Type, Image, Plus } from "lucide-react";
+import { Trash2, Type, Image, Plus, Upload, X } from "lucide-react";
 
-const Examples = ({ formData, setFormData, handleExampleImageUpload }) => {
+const Examples = ({ formData, setFormData, handleExampleImageUpload, removeExampleItem }) => {
   return (
     <div className="border rounded-lg p-4 bg-gray-50">
       <div className="flex justify-between items-center mb-3">
@@ -83,7 +83,7 @@ const Examples = ({ formData, setFormData, handleExampleImageUpload }) => {
 
             {/* render the items inside this group */}
             {exampleGroup.items.map((item, itemIdx) => (
-              <div key={itemIdx} className=" p-3">
+              <div key={itemIdx} className="p-3">
                 {item.type === "text" ? (
                   <textarea
                     value={item.value}
@@ -99,13 +99,36 @@ const Examples = ({ formData, setFormData, handleExampleImageUpload }) => {
                     className="w-full border rounded-md p-2"
                   />
                 ) : (
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) =>
-                      handleExampleImageUpload(e, exIdx, itemIdx)
-                    }
-                  />
+                  <>
+                    {item.type === "image" &&
+                      (item.value ? (
+                        <div className="relative inline-block">
+                          <img
+                            src={item.value}
+                            alt={`Example ${exIdx + 1}`}
+                            className="h-40 w-auto rounded border"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeExampleItem(exIdx, itemIdx)}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="flex items-center justify-center p-3 border-2 border-dashed rounded-md cursor-pointer hover:border-blue-500">
+                          <Upload size={18} className="mr-2 text-gray-400" />
+                          <span>Upload Image</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleExampleImageUpload(e, exIdx, itemIdx)}
+                            className="hidden"
+                          />
+                        </label>
+                      ))}
+                  </>
                 )}
               </div>
             ))}
