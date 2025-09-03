@@ -41,13 +41,13 @@ const QuickAction = () => {
 
         {/* Add Employee */}
         <button
-          onClick={() => navigate('/register-employee')}
+          onClick={() => navigate('/notes')}
           className="bg-white overflow-hidden shadow rounded-lg border-none hover:shadow-lg hover:border-green-400 border transition duration-300"
         >
           <div className="px-4 py-5 sm:p-6 flex items-center">
             <FiUsers className="h-8 w-8 text-green-600 mr-4" />
             <div className="text-left">
-              <h3 className="text-lg font-medium text-gray-900">Add Employee</h3>
+              <h3 className="text-lg font-medium text-gray-900">View Notes</h3>
               <p className="mt-1 text-sm text-gray-500">Register an employee record</p>
             </div>
           </div>
