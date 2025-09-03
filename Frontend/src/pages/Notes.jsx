@@ -350,15 +350,7 @@ const Notes = () => {
                                                   </div>
                                                   <div className="ml-4">
                                                     <div className="text-sm font-medium text-gray-900 line-clamp-1">
-                                                      {note.question.heading}
-                                                    </div>
-                                                    <div className="text-xs text-gray-500">
-                                                      {note.category && (
-                                                        <span>{note.category}</span>
-                                                      )}
-                                                      {note.subCategory && (
-                                                        <span> • {note.subCategory}</span>
-                                                      )}
+                                                      {note.question}
                                                     </div>
                                                   </div>
                                                 </div>
