@@ -6,7 +6,7 @@ import {
   deleteNote,
   getAllNotes,
   getNoteById,
-} from "../controllers/Notes.controller.js";
+} from "../controllers/notes.controller.js";
 import { uploadPDF } from "../middleware/multer.middleware.js";
 
 const router = express.Router();
