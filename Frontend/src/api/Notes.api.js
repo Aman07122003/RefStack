@@ -32,19 +32,6 @@ export const getNoteById = async (id) => {
     }
 }
 
-export const updateNote = async (id, data) => {
-    try {
-        const response = await axiosInstance.put(`/api/notes/${id}`, data, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-        return response.data;
-    } catch (error) {
-        throw error.response?.data || error;
-    }
-}
-
 export const deleteNote = async (id) => {
     try {
         const response = await axiosInstance.delete(`/api/notes/${id}`);

@@ -41,7 +41,6 @@ export const uploadPDF = async (filePath) => {
             resource_type: 'raw', // Important for PDF files
             use_filename: true,
             unique_filename: false,
-            format: 'pdf', // Ensure it's treated as PDF
         });
         
         fs.unlinkSync(filePath); // Delete the file after upload

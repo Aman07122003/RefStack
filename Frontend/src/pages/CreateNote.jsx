@@ -68,18 +68,21 @@ const CreateNote = () => {
     e.preventDefault();
     try {
       setLoading(true);
-
+  
       const submitData = new FormData();
-
-      if (selectedFile) submitData.append('pdfFile', selectedFile);
-
-      submitData.append('data', JSON.stringify(formData));
-
+      if (selectedFile) submitData.append("pdfFile", selectedFile);
+      submitData.append("data", JSON.stringify(formData));
+  
       const response = await createNote(submitData);
-
+  
       console.log("Note created successfully:", response);
+  
+      // ✅ Updated to match backend
+      if (response?.data?.data?.pdfFile) {
+        alert("PDF uploaded at: " + response.data.data.pdfFile);
+      }
+  
       navigate("/notes");
-
     } catch (err) {
       console.log(err);
       alert(
@@ -90,7 +93,9 @@ const CreateNote = () => {
       setLoading(false);
     }
   };
-
+  
+  
+  
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <FormNav />

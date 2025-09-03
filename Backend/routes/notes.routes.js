@@ -1,26 +1,47 @@
-import express from 'express';
+import express from "express";
+import path from "path";
+import Note from "../models/notes.model.js"; // make sure the path is correct
 import {
-    createNote,
-    downloadNoteAsPDF,
-    updateNote,
-    deleteNote,
-    getAllNotes,
-    getNoteById
-} from '../controllers/Notes.controller.js';
-import { upload } from '../middleware/multer.middleware.js';
+  createNote,
+  deleteNote,
+  getAllNotes,
+  getNoteById,
+} from "../controllers/Notes.controller.js";
+import { uploadPDF } from "../middleware/multer.middleware.js";
 
 const router = express.Router();
 
-router.route("/").post(
-  upload.fields([
-    { name: "pdfFile", maxCount: 1 }, // match frontend
-  ]),
+// Create note with PDF upload
+router.post(
+  "/",
+  uploadPDF.single("pdfFile"), // single PDF upload
   createNote
 );
-router.get('/', getAllNotes);
-router.get('/:id', getNoteById);
-router.put('/:id', updateNote);
-router.delete('/:id', deleteNote);
-router.get('/:id/download', downloadNoteAsPDF);
+
+// Get all notes
+router.get("/", getAllNotes);
+
+// Get single note by ID
+router.get("/:id", getNoteById);
+
+// Download PDF file by note ID
+router.get("/:id/file", async (req, res) => {
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note || !note.pdfFile) return res.status(404).send("File not found");
+
+    // Extract filename from URL
+    const fileName = note.pdfFile.split("/files/")[1];
+    const filePath = path.join(process.cwd(), "Files", fileName);
+
+    res.download(filePath); // download PDF
+  } catch (error) {
+    console.error("Error fetching PDF:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Delete note
+router.delete("/:id", deleteNote);
 
 export default router;

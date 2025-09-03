@@ -2,103 +2,63 @@ import Note from "../models/notes.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { APIError } from "../utils/APIError.js";
 import { APIResponse } from "../utils/APIResponse.js";
-import fs from "fs";
-import { uploadPDF } from "../utils/cloudinary.js";
 
-
-// Create a new note
-const createNote = asyncHandler(async (req, res) => {
+const createNote = async (req, res) => {
   try {
-    // Parse JSON from 'data' field
-    const parsedData = req.body.data ? JSON.parse(req.body.data) : req.body;
+    let bodyData = req.body;
 
-    const {
-      question,
-      category,
-      subCategory,
-      tags,
-      difficulty,
-      source,
-      video,
-    } = parsedData;
-
-    // Validate required fields
-    if (!question || question.trim() === '') {
-      throw new APIError(400, 'Question is required');
-    }
-    if (!category || category.trim() === '') {
-      throw new APIError(400, 'Category is required');
+    // Agar data JSON string ke form me aaya hai (FormData se)
+    if (bodyData.data) {
+      bodyData = JSON.parse(bodyData.data);
     }
 
-    // Handle PDF upload
-    let pdfFileData = null;
-    if (req.files && req.files.pdfFile && req.files.pdfFile.length > 0) {
-      const pdfFile = req.files.pdfFile[0];
+    const { question, category } = bodyData;
 
-      // Check if file exists
-      if (!pdfFile.path || !fs.existsSync(pdfFile.path)) {
-        throw new APIError(400, 'PDF file not found on server');
-      }
-
-      try {
-        // Upload to Cloudinary
-        const uploadResult = await uploadPDF(pdfFile.path);
-
-        pdfFileData = {
-          public_id: uploadResult.public_id,
-          url: uploadResult.secure_url,
-          originalName: pdfFile.originalname,
-          size: pdfFile.size,
-          format: 'pdf',
-        };
-
-        // File already deleted in uploadToCloudinary
-      } catch (uploadError) {
-        console.error('Cloudinary upload error:', uploadError);
-        throw new APIError(500, 'Failed to upload PDF file');
-      }
+    if (!question || !category) {
+      throw new APIError(400, "Question and Category are required");
     }
 
-    // Create and save new note
-    const newNote = await Note.create({
-      question: question.trim(),
-      file: pdfFileData,
-      category: category.trim(),
-      subCategory: subCategory?.trim() || '',
-      tags: Array.isArray(tags) ? tags : [],
-      difficulty: ['Easy', 'Medium', 'Hard'].includes(difficulty)
-        ? difficulty
-        : 'Medium',
-      source: source?.trim() || '',
-      video: video?.trim() || '',
+    // Agar file upload hua hai
+    let pdfUrl = null;
+    if (req.file) {
+      // Construct public URL for the PDF
+      pdfUrl = `${req.protocol}://${req.get("host")}/files/${req.file.filename}`;
+    }
+
+    // MongoDB me save karo
+    const note = await Note.create({
+      ...bodyData,
+      pdfFile: pdfUrl, // store the public URL
     });
 
-    return res
-      .status(201)
-      .json(new APIResponse(201, 'Note created successfully', newNote));
-
+    res.status(201).json({
+      success: true,
+      message: "Note created successfully",
+      data: note,
+    });
   } catch (error) {
-    console.error('Error creating note:', error);
-
-    // Cleanup any uploaded files in case of error
-    if (req.files) {
-      for (const fieldName in req.files) {
-        req.files[fieldName].forEach((file) => {
-          try {
-            if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
-          } catch (unlinkError) {
-            console.error('Error cleaning up file:', unlinkError);
-          }
-        });
-      }
-    }
-
-    if (error instanceof APIError) {
-      throw error;
-    }
-    throw new APIError(500, 'Failed to create note');
+    console.error("Error creating note:", error);
+    res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || "Failed to create note",
+    });
   }
-});
+};
+
+
+const getNoteFile = async (req, res) => {
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note || !note.file) {
+      throw new APIError(404, "File not found");
+    }
+
+    res.download(note.file.filePath, note.file.fileName);
+  } catch (err) {
+    console.error("Error retrieving file:", err);
+    res.status(500).json(new APIError(500, "Failed to retrieve file"));
+  }
+};
 
 const deleteNote = asyncHandler(async (req, res) => {
     try {
@@ -117,7 +77,7 @@ const deleteNote = asyncHandler(async (req, res) => {
       console.error("Error deleting note:", error);
       throw new APIError(500, "Failed to delete note");
     }
-  });
+});
 
 
 const getAllNotes = asyncHandler(async (req, res) => {
@@ -192,14 +152,13 @@ const getNoteById = asyncHandler(async (req, res) => {
       console.error("Error fetching note by ID:", error);
       throw new APIError(500, "Failed to fetch note");
     }
-  });
+});
   
 
 export {
     createNote,
-    downloadNoteAsPDF,
-    updateNote,
     deleteNote,
+    getNoteFile,
     getAllNotes,
     getNoteById
 };

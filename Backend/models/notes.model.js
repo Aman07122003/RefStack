@@ -6,27 +6,9 @@ const NoteSchema = new mongoose.Schema({
       type: String,
       required: true
   },
-  file: {
-    public_id: {
-      type: String,
-      default: null
-    },
-    url: {
-      type: String,
-      default: null
-    },
-    originalName: {
-      type: String,
-      default: ''
-    },
-    size: {
-      type: Number,
-      default: 0
-    },
-    format: {
-      type: String,
-      default: 'pdf'
-    }
+  pdfFile: {
+    type: String, // store public URL
+    default: null
   },
   category: {
     type: String,
@@ -62,5 +44,6 @@ const NoteSchema = new mongoose.Schema({
     default: Date.now
   }
 });
+
 
 export default mongoose.model('Note', NoteSchema);
