@@ -5,8 +5,7 @@ import { PlusCircle, FileDown, Pencil, Trash2, ChevronDown, ChevronUp, Filter, X
 import {
   getAllNotes,
   deleteNote,
-  downloadNoteAsPDF,
-} from '../api/Notes.api';
+} from '../api/Notes.api.js';
 import FormNav from '../components/FormNav';
 import Footer from '../components/Home/Footer';
 import { Document, Page, pdfjs } from 'react-pdf';
