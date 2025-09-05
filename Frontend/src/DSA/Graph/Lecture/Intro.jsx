@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
 import { Code, Files, ArrowLeft, ArrowRight, Youtube, BookOpen, ExternalLink, Layers } from 'lucide-react';
 import Graph1 from '../Media/graph1.png';
+import Graph2 from '../Media/graph2.png';
+import Graph3 from '../Media/graph3.png';
+import Graph4 from '../Media/graph4.png';
+import Graph5 from '../Media/graph5.png';
+import Graph6 from '../Media/graph6.png';
+import Graph7 from '../Media/graph7.png';
+import Graph8 from '../Media/graph8.png';
+import Graph9 from '../Media/graph9.png';
+import Graph10 from '../Media/graph10.png';
+import Graph11 from '../Media/graph11.png';
+import Graph12 from '../Media/graph12.png';
+import Graph13 from '../Media/graph13.png';
 
 
 const Intro = () => {
@@ -22,86 +34,102 @@ const Intro = () => {
             subheading: "Definations and Terminology",
             para: "A graph is a non-linear data structure consisting of nodes that have data and are connected to other nodes through edges.",
             image: Graph1
-          }
-        ]
-      },
-      {
-        heading: "Types of Graphs",
-        content: [
+          },
+          {
+            subheading: "Node ",
+            para: "Nodes are circles represented by numbers. Nodes are also referred to as vertices. They store the data. The numbering of the nodes can be done in any order, no specific order needs to be followed. \n\n In the following example, the number of nodes or vertices = 5",
+            image: Graph2
+          }, 
+          {
+            subheading: "Edge",
+            para: "Two nodes are connected by a horizontal line called Edge. Edge can be directed or undirected. Basically, pairs of vertices are called edges. \n\n In the above example, the edge can go from 1 to 4 or from 4 to 1, i.e. a bidirectional edge can be in both directions, hence called an undirected edge. Thus, the pairs (1,4) and (4,1) represent the same edge.",
+            image: Graph2
+          },
+          {
+            subheading: "Types of Graphs",
+            image: Graph3
+          },
           {
             subheading: "Undirected Graph",
-            para: "An undirected graph is a graph where edges are bidirectional, with no direction associated with them. The pair of vertices representing any edge is unordered. Thus, (u, v) and (v, u) represent the same edge."
-          },
+            para: "An undirected graph is a graph where edges are bidirectional, with no direction associated with them, i.e, there will be an undirected edge. In an undirected graph, the pair of vertices representing any edge is unordered. Thus, the pairs (u, v) and (v, u) represent the same edge.",
+          },  
           {
             subheading: "Directed Graph",
-            para: "A directed graph is a graph where all the edges are directed from one vertex to another. Each edge is represented by an ordered pair <u, v>. <u, v> and <v, u> represent two different edges."
+            para: "A directed graph is a graph where all the edges are directed from one vertex to another, i.e, there will be a directed edge. It contains an ordered pair of vertices. It implies each edge is represented by a directed pair <u, v>. Therefore, <u, v> and <v, u> represent two different edges.",
           },
           {
-            subheading: "Bidirectional Edges",
-            para: "There can be multiple directed edges between vertices, effectively creating bidirectional edges."
-          }
+            para: "There can be multi-directed edges, hence bidirectional edges, as shown in the example below.",
+            image: Graph4
+          },
+
         ]
       },
       {
         heading: "Structure of a Graph",
         content: [
           {
-            subheading: "Cycles",
-            para: "Not every graph has a cycle. A graph is said to have a cycle if it starts from a node and ends at the same node. If at least one cycle is present, it is called a Cyclic Graph."
+            para: "Does every graph have a cycle? \n\n The answer is No! Let us consider the following examples to understand this. ",
+            image: Graph5
           },
           {
-            subheading: "Undirected Cyclic Graph",
-            para: "An undirected graph with at least one cycle is called an Undirected Cyclic Graph."
+            para: "Fig.1 does not form a cycle but still, it is a graph."
           },
           {
-            subheading: "Directed Acyclic Graph (DAG)",
-            para: "If no cycle is present in a directed graph, it is called a Directed Acyclic Graph (DAG)."
+            para: "Fig.2 is an example of a binary tree. It can also be called a graph because it follows all the rules. We’ve nodes and edges, and this is the minimal condition to be called a graph. "
           },
           {
-            subheading: "Directed Cyclic Graph",
-            para: "If at least one cycle exists in a directed graph, it is called a Directed Cyclic Graph."
-          }
+            para: "So a graph does not necessarily mean to be an enclosed structure, it can be an open structure as well. A graph is said to have a cycle if it starts from a node and ends at the same node. There can be multiple cycles in a graph.",
+            image: Graph6
+          },
+          {
+            para: "If there is at least one cycle present in the graph then it is called an Undirected Cyclic Graph.  \n\n In the following examples of directed graphs, the first directed graph is not cyclic as we can’t start from a node and end at the same node. Hence it is called Directed Acyclic Graph, commonly called DAG.",
+            image: Graph7
+          },
+          {
+            para: "If we just add an edge to the directed graph, then at least one cycle is present in the graph, hence it becomes Directed Cyclic Graph.",
+          },
+          {
+            subheading: "Path in a Graph",
+            image: Graph8
+          },
+          {
+            para: "The path contains a lot of nodes and each of them is reachable.\n\n Consider the given graph,",
+            image: Graph9
+          },
+            {
+                para: "1 2 3 5 is a path. \n\n 1 2 3 2 1 is not a path, because a node can’t appear twice in a path. \n\n 1 3 5 is not a path, as adjacent nodes must have an edge and there is no edge between 1 and 3.",
+            },
         ]
       },
       {
-        heading: "Path in a Graph",
+        heading: "Types of Graphs based on Degree",
         content: [
           {
-            para: "A path contains a sequence of nodes where each is reachable from the previous one."
+            subheading: "Degree of Graph",
+            para: "It is the number of edges that go inside or outside that node. \n\n For undirected graphs, the degree is the number of edges attached to a node. \n\n Example, \n D(3) = 3 \n D(4) = 2",
+            image: Graph10
           },
           {
-            para: "Examples:\n- 1 2 3 5 is a valid path.\n- 1 2 3 2 1 is not a path (a node cannot appear twice).\n- 1 3 5 is not a path (1 and 3 are not directly connected)."
-          }
+            para: " It states that the total degree of a graph is equal to twice the number of edges. This is because every edge is associated/ connected to two nodes.",
+            image: Graph11
+          },
+          {
+            para: "Total Degree of a graph = 2 x E \n\n Example, (2+2+3+2+3) = 2 x 6 => 12 = 12 ",
+            image: Graph12
+          },
+          {
+            para: "For directed graphs, we’ve Indegree and Outdegree. The indegree of a node is the number of incoming edges. The outdegree of a node is the number of outgoing edges.",
+          },
+          {
+            subheading: "Edge Weight",
+            para: "A graph may have weights assigned on its edges. It is often referred to as the cost of the edge.",
+            image: Graph13
+          },
+          {
+            para: "If weights are not assigned then we assume the unit weight, i.e, 1. In applications, weight may be a measure of the cost of a route. For example, if vertices A and B represent towns in a road network, then weight on edge AB may represent the cost of moving from A to B, or vice versa.",
+          },
         ]
       },
-      {
-        heading: "Degree of a Graph",
-        content: [
-          {
-            subheading: "Undirected Graph",
-            para: "The degree of a node is the number of edges attached to it. Example: D(3)=3, D(4)=2."
-          },
-          {
-            subheading: "Property",
-            para: "The total degree of a graph is equal to twice the number of edges. Example: (2+2+3+2+3) = 2 × 6 = 12."
-          },
-          {
-            subheading: "Directed Graph",
-            para: "In directed graphs, each node has an Indegree (number of incoming edges) and an Outdegree (number of outgoing edges)."
-          }
-        ]
-      },
-      {
-        heading: "Edge Weights",
-        content: [
-          {
-            para: "A graph may have weights assigned to its edges, often referred to as the cost of the edge. If no weights are assigned, we assume unit weight (1)."
-          },
-          {
-            para: "Example: If vertices A and B represent towns in a road network, the weight on edge AB may represent the cost of moving from A to B (or vice versa)."
-          }
-        ]
-      }
     ]
   };
   
@@ -168,7 +196,7 @@ const Intro = () => {
                         <img 
                         src={item.image} 
                         alt="Content visual" 
-                        className=" rounded-xl shadow-md mt-4 border border-gray-200"/>
+                        className="rounded-xl shadow-md mt-4 border border-gray-200"/>
                     )}
                 </div>
                 ))}
