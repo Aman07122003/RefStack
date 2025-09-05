@@ -10,6 +10,7 @@ import GitRepo from './pages/GitRepo.jsx';
 import Notes from './pages/Notes.jsx';
 import CreateNote from './pages/CreateNote.jsx';
 import Canva from './pages/Canva.jsx';
+import Intro from './DSA/Graph/Lecture/Intro.jsx';
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
         <Route path='/notes' element={<Notes/>}/>
         <Route path='/notes/new' element={<CreateNote/>}/>
         <Route path='/notes/canva' element={<Canva/>}/>
+        <Route path='/notes/dsa/graph/intro' element={<Intro/>}/>
       </Routes>
     </Router>
   );
