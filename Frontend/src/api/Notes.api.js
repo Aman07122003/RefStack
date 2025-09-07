@@ -12,6 +12,15 @@ export const createNote = async (formData) => {
       throw error.response?.data || error;
     }
   };
+
+export const dsaNotes = async (data) => {
+    try {
+        const response = await axiosInstance.post('/api/notes/dsa', data);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error;
+    }
+}
   
 
 export const getAllNotes = async () => {

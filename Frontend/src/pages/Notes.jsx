@@ -15,7 +15,7 @@ import 'react-pdf/dist/Page/TextLayer.css';
 // Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
-const Notes = () => {
+const Notes = ({ groupedNotes = {}, category = '', subCategory = '' }) => {
   const navigate = useNavigate();
   const [notes, setNotes] = useState([]);
   const [filteredNotes, setFilteredNotes] = useState([]);
@@ -136,6 +136,14 @@ const Notes = () => {
     setScale(1.0);
   };
 
+  const closePdfViewer = () => {
+    setPdfViewer({
+      isOpen: false,
+      url: '',
+      title: ''
+    });
+  };
+
   const groupNotesByCategoryAndSubCategory = (notesToGroup) => {
     const grouped = {};
     
@@ -162,11 +170,100 @@ const Notes = () => {
     return grouped;
   };
 
-  const groupedNotes = groupNotesByCategoryAndSubCategory(filteredNotes);
+  const handleNoteClick = (category, subCategory, question) => {
+    navigate(`/notes/${category}/${subCategory}/${question}`);
+};
+
+
+  const grouped = groupNotesByCategoryAndSubCategory(filteredNotes);
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <FormNav />
+      
+      {/* PDF Viewer Modal */}
+      <AnimatePresence>
+        {pdfViewer.isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
+            onClick={closePdfViewer}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-screen overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between p-4 border-b">
+                <h3 className="text-lg font-semibold">{pdfViewer.title}</h3>
+                <button
+                  onClick={closePdfViewer}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              <div className="p-4 max-h-[70vh] overflow-auto">
+                <Document
+                  file={pdfViewer.url}
+                  onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+                  loading={<div className="text-center py-8">Loading PDF...</div>}
+                >
+                  <Page pageNumber={pageNumber} scale={scale} />
+                </Document>
+              </div>
+              <div className="flex items-center justify-between p-4 border-t bg-gray-50">
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setPageNumber(prev => Math.max(prev - 1, 1))}
+                    disabled={pageNumber <= 1}
+                    className="p-2 rounded hover:bg-gray-200 disabled:opacity-50"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <span className="text-sm">
+                    Page {pageNumber} of {numPages || '--'}
+                  </span>
+                  <button
+                    onClick={() => setPageNumber(prev => Math.min(prev + 1, numPages || prev))}
+                    disabled={pageNumber >= (numPages || 1)}
+                    className="p-2 rounded hover:bg-gray-200 disabled:opacity-50"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setScale(prev => Math.max(prev - 0.2, 0.5))}
+                    className="p-2 rounded hover:bg-gray-200"
+                  >
+                    <ZoomOut size={20} />
+                  </button>
+                  <span className="text-sm">{(scale * 100).toFixed(0)}%</span>
+                  <button
+                    onClick={() => setScale(prev => Math.min(prev + 0.2, 2))}
+                    className="p-2 rounded hover:bg-gray-200"
+                  >
+                    <ZoomIn size={20} />
+                  </button>
+                  <a
+                    href={pdfViewer.url}
+                    download
+                    className="p-2 rounded hover:bg-gray-200 text-blue-600"
+                  >
+                    <Download size={20} />
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <main className="flex-1 container mx-auto p-4 md:p-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <h1 className="text-2xl font-bold text-gray-800">My Notes</h1>
@@ -251,7 +348,7 @@ const Notes = () => {
           </div>
         ) : (
           <div className="space-y-6">
-            {Object.keys(groupedNotes).map(category => (
+            {Object.keys(grouped).map(category => (
               <div key={category} className="bg-white rounded-lg shadow-md overflow-hidden">
                 <button
                   onClick={() => toggleCategory(category)}
@@ -262,7 +359,7 @@ const Notes = () => {
                       {category}
                     </span>
                     <span className="text-sm text-gray-500">
-                      ({groupedNotes[category].notes.length} note{groupedNotes[category].notes.length !== 1 ? 's' : ''})
+                      ({grouped[category].notes.length} note{grouped[category].notes.length !== 1 ? 's' : ''})
                     </span>
                   </div>
                   {expandedCategories[category] ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
@@ -278,7 +375,7 @@ const Notes = () => {
                       className="overflow-hidden"
                     >
                       <div className="p-4 space-y-4">
-                        {Object.keys(groupedNotes[category].subCategories).map(subCategory => (
+                        {Object.keys(grouped[category].subCategories).map(subCategory => (
                           <div key={subCategory} className="bg-gray-50 rounded-lg overflow-hidden">
                             <button
                               onClick={() => toggleSubCategory(category, subCategory)}
@@ -289,7 +386,7 @@ const Notes = () => {
                                   {subCategory}
                                 </span>
                                 <span className="text-sm text-gray-500">
-                                  ({groupedNotes[category].subCategories[subCategory].length} note{groupedNotes[category].subCategories[subCategory].length !== 1 ? 's' : ''})
+                                  ({grouped[category].subCategories[subCategory].length} note{grouped[category].subCategories[subCategory].length !== 1 ? 's' : ''})
                                 </span>
                               </div>
                               {expandedSubCategories[`${category}-${subCategory}`] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
@@ -333,7 +430,7 @@ const Notes = () => {
                                           </tr>
                                         </thead>
                                         <tbody className="bg-white divide-y divide-gray-200">
-                                          {groupedNotes[category].subCategories[subCategory].map((note, idx) => (
+                                          {grouped[category].subCategories[subCategory].map((note, idx) => (
                                             <motion.tr
                                               key={note._id}
                                               initial={{ opacity: 0 }}
@@ -350,17 +447,34 @@ const Notes = () => {
                                                   </div>
                                                   <div className="ml-4">
                                                     <div className="text-sm font-medium text-gray-900 line-clamp-1">
-                                                      {note.question}
+                                                      <a
+                                                        className="cursor-pointer hover:text-green-400"
+                                                        onClick={() => handleNoteClick(category, subCategory, note.question)}
+                                                      >
+                                                        {note.question}
+                                                      </a>
                                                     </div>
                                                   </div>
                                                 </div>
                                               </td>
                                               
                                               <td className="px-6 py-4 whitespace-nowrap">
-                                                {note.pdfFile? (
+                                                {note.pdfFile ? (
                                                   <div className="flex gap-2">
-                                                    <a href={note.pdfFile} >
-                                                       <Briefcase size={16} />
+                                                    <button
+                                                      onClick={() => handleViewPDF(note.pdfFile, note.question.heading || note.question)}
+                                                      className="text-blue-600 hover:text-blue-800 transition-colors"
+                                                      title="View PDF"
+                                                    >
+                                                      <Eye size={16} />
+                                                    </button>
+                                                    <a
+                                                      href={note.pdfFile}
+                                                      download
+                                                      className="text-blue-600 hover:text-blue-800 transition-colors"
+                                                      title="Download PDF"
+                                                    >
+                                                      <Download size={16} />
                                                     </a>
                                                   </div>
                                                 ) : (
@@ -405,10 +519,9 @@ const Notes = () => {
                                                     className="text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1"
                                                   >
                                                     <Code size={16} />
-                                                
                                                   </a>
                                                 ) : (
-                                                  <span className="text-gray-400 text-sm">No Video</span>
+                                                  <span className="text-gray-400 text-sm">No Code</span>
                                                 )}
                                               </td>
                                               <td className='px-9 py-4 whitespace-nowrap ml-3'>
@@ -420,7 +533,6 @@ const Notes = () => {
                                                     className="text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1"
                                                   >
                                                     <Video size={16} />
-                                                
                                                   </a>
                                                 ) : (
                                                   <span className="text-gray-400 text-sm">No Video</span>

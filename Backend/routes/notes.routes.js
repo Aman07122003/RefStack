@@ -7,6 +7,11 @@ import {
   getAllNotes,
   getNoteById,
 } from "../controllers/notes.controller.js";
+
+import {
+  getDSAContent, 
+} from "../controllers/dsa.controller.js";
+
 import { uploadPDF } from "../middleware/multer.middleware.js";
 
 const router = express.Router();
@@ -43,5 +48,7 @@ router.get("/:id/file", async (req, res) => {
 
 // Delete note
 router.delete("/:id", deleteNote);
+
+router.post("/dsa", getDSAContent);
 
 export default router;
