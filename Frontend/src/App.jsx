@@ -7,11 +7,7 @@ import Companies from './pages/Companies.jsx';
 import CompanyRegisteration from './pages/CompanyRegisteration.jsx';
 import Home from './pages/Home.jsx';
 import GitRepo from './pages/GitRepo.jsx';
-import Notes from './pages/Notes.jsx';
-import CreateNote from './pages/CreateNote.jsx';
-import Canva from './pages/Canva.jsx';
-import Intro from './DSA/Graph/Lecture/Intro.jsx';
-import NoteDetail from './pages/NoteDetail.jsx';
+
 
 const App = () => {
   return (
@@ -24,11 +20,6 @@ const App = () => {
         <Route path="/companies" element={<Companies />} />
         <Route path="/companies/new" element={<CompanyRegisteration />} />
         <Route path='/git-repo' element={<GitRepo/>}/>
-        <Route path='/notes' element={<Notes/>}/>
-        <Route path='/notes/new' element={<CreateNote/>}/>
-        <Route path='/notes/canva' element={<Canva/>}/>
-        <Route path='/notes/dsa/graph/intro' element={<Intro/>}/>
-        <Route path="/notes/:category/:subCategory/:question" element={<NoteDetail />} />
       </Routes>
     </Router>
   );
