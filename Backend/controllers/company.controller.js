@@ -8,7 +8,7 @@ import { uploadImage } from "../utils/cloudinary.js";
 const createCompany = asyncHandler(async (req, res) => {
   try {
     const { name, website, industry, location, description, LinkedIn, careersPage, type, averageSalaryBand } = req.body;
-
+    console.log(req.body);
     let logoUrl = "";
     if (req.file || (req.files && req.files.logo)) {
       logoUrl = req.file?.path || req.files.logo[0]?.path;

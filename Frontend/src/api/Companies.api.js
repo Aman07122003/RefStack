@@ -16,7 +16,6 @@ export const createCompany = async (data) => {
                 'Content-Type': 'multipart/form-data',
             },
         });
-        
         return response.data;
     } catch (error) {
         throw error.response?.data || error;

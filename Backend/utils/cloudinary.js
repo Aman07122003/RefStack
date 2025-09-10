@@ -29,30 +29,6 @@ export const uploadImage = async (filePath) => {
     }
 }
 
-// Upload PDF function (new)
-export const uploadPDF = async (filePath) => {
-    try {
-        if(!filePath) {
-            throw new Error('File path is required');
-        }
-        
-        const result = await cloudinary.uploader.upload(filePath, {
-            folder: 'notes_pdfs',
-            resource_type: 'raw', // Important for PDF files
-            use_filename: true,
-            unique_filename: false,
-        });
-        
-        fs.unlinkSync(filePath); // Delete the file after upload
-        return result;
-    }
-    catch (error) {
-        fs.unlinkSync(filePath); 
-        console.error('Error uploading PDF to Cloudinary:', error);
-        throw new Error('PDF upload failed');
-    }
-}
-
 // Delete file from Cloudinary
 export const deleteFromCloudinary = async (publicId, resourceType = 'image') => {
     try {
