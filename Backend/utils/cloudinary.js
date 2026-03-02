@@ -1,7 +1,7 @@
-// utils/cloudinary.js
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
-import path from 'path';
+import dotenv from "dotenv";
+dotenv.config();
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -15,26 +15,32 @@ export const uploadImage = async (filePath) => {
             throw new Error('File path is required');
         }
         const result = await cloudinary.uploader.upload(filePath, {
-            folder: 'employee_images',
+            folder: 'RefStack/photos',
             resource_type: 'auto'
         });
-        fs.unlinkSync(filePath); // Delete the file after upload
-        return result;
+        if(fs.exitsSync(localFilePath)) {
+            fs.unlinkSync(localFilePath);
+        }
+
+        return {
+            url: result.secure_url,
+            public_id: result.public_id,
+        };
     }
     catch (error) {
-        fs.unlinkSync(filePath); // Ensure file is deleted on error as well
-        console.error('Error uploading image to Cloudinary:', error);
-        throw new Error('Image upload failed');
+        if (localFilePath && fs.existsSync(localFilePath)) {
+            fs.unlinkSync(localFilePath);
+        }
+
+        console.log("CLOUDINARY UPLOAD ERROR:", error);
         return null;
     }
 }
 
-// Delete file from Cloudinary
-export const deleteFromCloudinary = async (publicId, resourceType = 'image') => {
+export const deleteFromCloudinary = async (publicId) => {
     try {
-        const result = await cloudinary.uploader.destroy(publicId, {
-            resource_type: resourceType
-        });
+        if(!publicId) return false;
+        const result = await cloudinary.uploader.destroy(publicId);
         return result;
     }
     catch (error) {

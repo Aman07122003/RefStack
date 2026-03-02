@@ -27,12 +27,12 @@ const companySchema = new mongoose.Schema(
     LinkedIn: {
       type: String,
     },
-    careersPage: { // ✅ fixed spelling to match controller
+    careersPage: { 
       type: String,
     },
     type: {
       type: String,
-      enum: ['Startup', 'Service', 'Product', 'Government', 'Freelance'],
+      enum: ['Startup', 'Service', 'Product', 'Government', 'Freelance', 'Agency'],
       default: 'Startup',
       required: true,
     },

@@ -1,18 +1,63 @@
 import mongoose from "mongoose";
 
-const repoSchema = new mongoose.Schema({
-    name: String,
-    tag: String,
-    full_name: String,
-    description: String,
-    html_url: String,
-    stars: Number,
-    forks: Number,
-    issues: Number,
-    language: String,
-    owner: String,
-    topics: [String]
-  });
+const githubProjectSchema = new mongoose.Schema(
+  {
+    githubRepoId: {
+      type: String,
+      required: true
+    },
 
-const Repo = mongoose.model("Repo", repoSchema);
-export default Repo;
+    repoName: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    description: {
+      type: String,
+      trim: true
+    },
+
+    githubUrl: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    techStack: [
+      {
+        type: String,
+        trim: true
+      }
+    ],
+
+    stars: {
+      type: Number,
+      default: 0
+    },
+
+    forks: {
+      type: Number,
+      default: 0
+    },
+
+    topics: [String],
+
+    createdAtGithub: Date,
+    updatedAtGithub: Date,
+
+    lastSyncedAt: {
+      type: Date,
+      default: Date.now
+    }
+  },
+  { timestamps: true }
+);
+
+// Prevent duplicate repo save per user
+githubProjectSchema.index(
+  { githubRepoId: 1 },
+  { unique: true }
+);
+
+export default mongoose.model("GithubProject", githubProjectSchema);
