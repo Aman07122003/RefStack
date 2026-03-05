@@ -15,7 +15,7 @@ The system allows storing detailed employee information (LinkedIn, GitHub, Email
 
 ### 🏢 Company Module
 - Register and manage companies
-- Store official details, social media links, and career page
+- Store official details, social mdia links, and career page
 - Company-wise employee association
 
 ---
