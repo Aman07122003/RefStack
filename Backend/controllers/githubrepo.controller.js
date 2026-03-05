@@ -2,95 +2,96 @@ import axios from "axios";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { APIError } from "../utils/APIError.js";
 import { APIResponse } from "../utils/APIResponse.js";
-import Repo from "../models/repoSchema.model.js";
-import mongoose from "mongoose";
+import GithubProject from "../models/repoSchema.model.js";
 
-// Create new repo from GitHub link
-const createRepo = asyncHandler(async (req, res) => {
+export const createRepo = asyncHandler(async (req, res) => {
+  const { url } = req.body;
+
+  if (!url) {
+    throw new APIError(400, "Repository URL is required");
+  }
+
+  // 🔍 Extract owner and repo
+  const cleanedUrl = url.replace("https://github.com/", "").trim();
+  const parts = cleanedUrl.split("/");
+
+  if (parts.length < 2) {
+    throw new APIError(400, "Invalid GitHub repository URL");
+  }
+
+  const [owner, repo] = parts;
+
+  let data;
+
   try {
-    const { url, tag } = req.body;
-    if (!url) {
-      return res.status(400).json(new APIError(400, "Repository URL is required"));
-    }
+    const response = await axios.get(
+      `https://api.github.com/repos/${owner}/${repo}`,
+      {
+        headers: {
+          Accept: "application/vnd.github+json",
+        },
+      }
+    );
 
-    const parts = url.replace("https://github.com/", "").split("/");
-    if (parts.length < 2) {
-      return res.status(400).json(new APIError(400, "Invalid GitHub repository URL"));
-    }
-    const [owner, repo] = parts;
+    data = response.data;
 
-    let data;
-    try {
-      const response = await axios.get(`https://api.github.com/repos/${owner}/${repo}`, {
-        headers: { "Accept": "application/vnd.github+json" }
-      });
-      data = response.data;
-    } catch (err) {
-      return res.status(404).json(new APIError(404, "GitHub repository not found", err.message));
-    }
+  } catch (error) {
+    throw new APIError(404, "GitHub repository not found");
+  }
 
-    const repoData = {
-      name: data.name,
-      tag: tag || "General",
-      full_name: data.full_name,
-      description: data.description,
-      html_url: data.html_url,
-      stars: data.stargazers_count,
-      forks: data.forks_count,
-      issues: data.open_issues_count,
-      language: data.language,
-      owner: data.owner.login,
-      topics: data.topics || []
-    };
+  // ✅ Match schema exactly
+  const repoData = {
+    githubRepoId: data.id.toString(),
+    repoName: data.name,
+    description: data.description,
+    githubUrl: data.html_url,
+    techStack: data.language ? [data.language] : [],
+    stars: data.stargazers_count,
+    forks: data.forks_count,
+    topics: data.topics || [],
+    createdAtGithub: data.created_at,
+    updatedAtGithub: data.updated_at,
+    lastSyncedAt: new Date(),
+  };
 
-    const newRepo = await Repo.create(repoData);
+  try {
+    const newRepo = await GithubProject.create(repoData);
 
     return res.status(201).json(
       new APIResponse(201, newRepo, "Repository saved successfully")
     );
 
   } catch (error) {
-    return res.status(500).json(
-      new APIError(500, "Failed to create repository", error.message)
-    );
-  }
-});
 
-// Get all repos
-const getAllRepos = asyncHandler(async (req, res) => {
-  try {
-    const repos = await Repo.find(); // removed .populate('topics')
-    return res.status(200).json(
-      new APIResponse(200, repos, "Repositories retrieved successfully")
-    );
-  } catch (error) {
-    return res.status(500).json(
-      new APIError(500, "Failed to retrieve repositories", error)
-    );
-  }
-});
-
-// Get repo by ID
-// controller/repoController.js
-const getReposByTag = asyncHandler(async (req, res) => {
-  try {
-    const { tag } = req.body; // we will send tag in body (POST)
-
-    if (!tag) {
-      return res.status(400).json(new APIError(400, "Tag is required"));
+    // 🚨 Handle duplicate repo
+    if (error.code === 11000) {
+      throw new APIError(400, "Repository already saved");
     }
 
-    const repos = await Repo.find({ tag: tag });
-
-    return res
-      .status(200)
-      .json(new APIResponse(200, repos, "Repositories filtered by tag"));
-  } catch (error) {
-    return res.status(500).json(
-      new APIError(500, "Failed to retrieve repositories by tag", error)
-    );
+    throw new APIError(500, "Failed to save repository");
   }
 });
 
+export const getAllRepos = asyncHandler(async (req, res) => {
+  const repos = await GithubProject.find().sort({ createdAt: -1 });
 
-export { createRepo, getAllRepos, getReposByTag };
+  return res.status(200).json(
+    new APIResponse(200, repos, "Repositories retrieved successfully")
+  );
+});
+
+export const getReposByTopic = asyncHandler(async (req, res) => {
+  const { topic } = req.query;
+
+  if (!topic) {
+    throw new APIError(400, "Topic is required");
+  }
+
+  const repos = await GithubProject.find({
+    topics: topic
+  });
+
+  return res.status(200).json(
+    new APIResponse(200, repos, "Repositories filtered by topic")
+  );
+});

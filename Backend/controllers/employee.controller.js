@@ -6,7 +6,7 @@ import { uploadImage } from "../utils/cloudinary.js";
 import mongoose from "mongoose";
 
 
-const createEmployee = asyncHandler(async (req, res) => {
+export const createEmployee = asyncHandler(async (req, res) => {
     try {
       const { 
         fullName, 
@@ -72,8 +72,7 @@ const createEmployee = asyncHandler(async (req, res) => {
     }
   });
   
-
-const getAllEmployees = asyncHandler(async (req, res) => {
+export const getAllEmployees = asyncHandler(async (req, res) => {
     try {
         const employees = await Employee.find().populate("companyId");
         return res
@@ -86,7 +85,7 @@ const getAllEmployees = asyncHandler(async (req, res) => {
     }
 });
 
-const getEmployeeById = asyncHandler(async (req, res) => {
+export const getEmployeeById = asyncHandler(async (req, res) => {
     try {
         const employee = await Employee.findById(req.params.id).populate("companyId");
         if (!employee) {
@@ -104,7 +103,7 @@ const getEmployeeById = asyncHandler(async (req, res) => {
     }
 });
 
-const updateEmployee = asyncHandler(async (req, res) => {
+export const updateEmployee = asyncHandler(async (req, res) => {
     try {
         const employee = await Employee.findByIdAndUpdate(
             req.params.id,
@@ -126,7 +125,7 @@ const updateEmployee = asyncHandler(async (req, res) => {
     }
 });
 
-const deleteEmployee = asyncHandler(async (req, res) => {
+export const deleteEmployee = asyncHandler(async (req, res) => {
     try {
         const employee = await Employee.findByIdAndDelete(req.params.id);
         if (!employee) {
@@ -144,7 +143,7 @@ const deleteEmployee = asyncHandler(async (req, res) => {
     }
 });
 
-const getEmployeesByCompanyId = asyncHandler(async (req, res) => {
+export const getEmployeesByCompanyId = asyncHandler(async (req, res) => {
     try {
         const { companyId } = req.params;
 
@@ -169,13 +168,4 @@ const getEmployeesByCompanyId = asyncHandler(async (req, res) => {
             .json(new APIError(500, "Failed to retrieve employees", error));
     }
 });
-
-export {
-    createEmployee,
-    getAllEmployees,
-    getEmployeeById,
-    updateEmployee,
-    deleteEmployee,
-    getEmployeesByCompanyId
-  };
   

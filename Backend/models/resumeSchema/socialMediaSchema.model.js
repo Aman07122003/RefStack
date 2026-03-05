@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 
-const socialMediaSchema = new mongoose.schema(
+const socialMediaSchema = new mongoose.Schema(
     {
         platform: {
             type: String,

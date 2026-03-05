@@ -1,12 +1,20 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const employee = new mongoose.Schema(
+const employeeSchema = new mongoose.Schema(
   {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true
+    },
+
     fullName: {
       type: String,
       required: true,
       trim: true,
     },
+
     emails: [
       {
         type: String,
@@ -14,42 +22,58 @@ const employee = new mongoose.Schema(
         lowercase: true,
       }
     ],
+
     image: {
       type: String,
-      required: true,
     },
+
     designation: {
       type: String,
       required: true,
     },
-    linkedIn: {
-      type: String,
-    },
-    twitter: {
-      type: String,
-    },
-    github: {
-      type: String,
-    },
-    PhoneNumbers: [
+
+    linkedIn: String,
+    twitter: String,
+    github: String,
+
+    phoneNumbers: [
       {
         type: String,
         trim: true,
       }
     ],
-    successlevel: {
-        type: String,
-        enum: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
-        default: '5',
-        },
-    companyId: {
+
+    successLevel: {
+      type: Number,
+      min: 1,
+      max: 10,
+      default: 5,
+    },
+
+    company: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Company',
+      ref: "Company",
       required: true,
     },
+
+    notes: {
+      type: String,
+      trim: true
+    },
+
+    isContacted: {
+      type: Boolean,
+      default: false
+    },
+
+    lastContactedAt: Date
   },
   { timestamps: true }
 );
 
-const Employee = mongoose.model('Employee', employee);
-export default Employee;
+employeeSchema.index(
+  { user: 1, company: 1, linkedIn: 1 },
+  { unique: true }
+);
+
+export default mongoose.model("Employee", employeeSchema);

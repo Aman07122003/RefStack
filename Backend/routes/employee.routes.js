@@ -7,7 +7,7 @@ import {
   deleteEmployee,
   getEmployeesByCompanyId
 } from '../controllers/employee.controller.js';
-import { uploadImages } from "../middleware/multer.middleware.js";
+import { uploadImages } from "../middlewares/multer.middleware.js";
 
 const router = express.Router();
 
@@ -16,6 +16,7 @@ router.route("/").post(
     { name: "avatar", maxCount: 1 },
   ]),
   createEmployee);
+  
 router.get('/', getAllEmployees);
 router.get('/:id', getEmployeeById);
 router.put('/:id', updateEmployee);

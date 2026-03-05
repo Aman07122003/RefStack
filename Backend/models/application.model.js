@@ -67,11 +67,11 @@ const applicationSchema = new mongoose.Schema(
     },
 
     referralPerson: {
-      type: String, // friend/senior who referred
+      type: String,
       trim: true
     },
 
-    hr: hrSchema, // 👈 structured HR info
+    hr: hrSchema, 
 
     appliedDate: {
       type: Date,
